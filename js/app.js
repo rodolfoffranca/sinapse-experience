@@ -67,14 +67,34 @@ function initHeaderScroll() {
   const navLinks = document.querySelectorAll(".nav-link");
   const sections = document.querySelectorAll("section[id]");
 
+  const darkSections = document.querySelectorAll(".hero.dark, section.dark");
+
   function handleScroll() {
     const scrollY = window.scrollY;
-    const heroHeight = heroSection ? heroSection.offsetHeight - 80 : 300;
 
-    if (scrollY > heroHeight) {
-      header.classList.add("site-header--scrolled");
+    if (!header) return;
+
+    if (scrollY <= 15) {
+      header.classList.remove("site-header--scrolled", "site-header--dark-scrolled");
     } else {
-      header.classList.remove("site-header--scrolled");
+      // Identifica se o header está sobreposto a uma seção com fundo escuro
+      const headerHeight = header.offsetHeight || 68;
+      let isOverDark = false;
+
+      darkSections.forEach(sec => {
+        const rect = sec.getBoundingClientRect();
+        if (rect.top <= headerHeight && rect.bottom > 0) {
+          isOverDark = true;
+        }
+      });
+
+      if (isOverDark) {
+        header.classList.remove("site-header--scrolled");
+        header.classList.add("site-header--dark-scrolled");
+      } else {
+        header.classList.remove("site-header--dark-scrolled");
+        header.classList.add("site-header--scrolled");
+      }
     }
 
     // Scroll spy
@@ -597,32 +617,68 @@ function downloadCalendarInvite(data) {
 // ==========================================================================
 function initFloatingCta() {
   const ctafix = document.querySelector(".ctafix");
+  const heroSection = document.getElementById("hero");
   const rsvpSection = document.getElementById("rsvp");
   const footer = document.querySelector(".foot");
 
-  if (!ctafix || !rsvpSection) return;
+  if (!ctafix) return;
+
+  // Inicia oculto na Hero
+  ctafix.classList.add("is-hidden");
 
   if ("IntersectionObserver" in window) {
-    const observer = new IntersectionObserver((entries) => {
-      let isOverFormOrFooter = false;
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          isOverFormOrFooter = true;
-        }
-      });
+    let isHeroVisible = true;
+    let isRsvpVisible = false;
+    let isFooterVisible = false;
 
-      if (isOverFormOrFooter) {
+    function updateCta() {
+      if (isHeroVisible || isRsvpVisible || isFooterVisible) {
         ctafix.classList.add("is-hidden");
       } else {
         ctafix.classList.remove("is-hidden");
       }
+    }
+
+    if (heroSection) {
+      const heroObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          isHeroVisible = entry.isIntersecting;
+          updateCta();
+        });
+      }, {
+        threshold: 0.25
+      });
+      heroObserver.observe(heroSection);
+    }
+
+    const formObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.target === rsvpSection) {
+          isRsvpVisible = entry.isIntersecting;
+        } else if (entry.target === footer) {
+          isFooterVisible = entry.isIntersecting;
+        }
+        updateCta();
+      });
     }, {
-      rootMargin: "0px 0px -10% 0px",
       threshold: 0.05
     });
 
-    observer.observe(rsvpSection);
-    if (footer) observer.observe(footer);
+    if (rsvpSection) formObserver.observe(rsvpSection);
+    if (footer) formObserver.observe(footer);
+  } else {
+    function checkCtaFallback() {
+      const scrollY = window.scrollY;
+      const heroHeight = heroSection ? heroSection.offsetHeight - 80 : 350;
+      const rsvpTop = rsvpSection ? rsvpSection.offsetTop - window.innerHeight : Infinity;
+      if (scrollY < heroHeight || scrollY > rsvpTop) {
+        ctafix.classList.add("is-hidden");
+      } else {
+        ctafix.classList.remove("is-hidden");
+      }
+    }
+    window.addEventListener("scroll", checkCtaFallback, { passive: true });
+    checkCtaFallback();
   }
 }
 

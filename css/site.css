@@ -358,19 +358,30 @@ section[id] {
   z-index: 1000;
   display: flex;
   align-items: center;
-  transition: background-color 0.35s var(--ease),
-              backdrop-filter 0.35s var(--ease),
-              border-color 0.35s var(--ease),
-              box-shadow 0.35s var(--ease);
+  transition: background-color 0.3s var(--ease),
+              backdrop-filter 0.3s var(--ease),
+              -webkit-backdrop-filter 0.3s var(--ease),
+              border-color 0.3s var(--ease),
+              box-shadow 0.3s var(--ease);
   background-color: transparent;
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
+/* Header translúcido com blur sobre seções escuras (Hero, Mentor) */
+.site-header--dark-scrolled {
+  background: rgba(13, 23, 52, 0.88);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+}
+
+/* Header translúcido com blur sobre seções claras (Programação, Pilares, etc) */
 .site-header--scrolled {
-  background-color: rgba(255, 255, 255, 0.94);
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
-  border-bottom: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(20, 24, 44, 0.08);
   box-shadow: 0 10px 32px -16px rgba(23, 34, 89, 0.12);
 }
 
@@ -461,6 +472,23 @@ section[id] {
   border-radius: 8px;
   align-items: center;
   justify-content: center;
+  color: #FFFFFF;
+}
+
+.site-header--dark-scrolled .brand-logo {
+  filter: brightness(0) invert(1);
+}
+
+.site-header--dark-scrolled .nav-link {
+  color: rgba(255, 255, 255, 0.88);
+}
+
+.site-header--dark-scrolled .nav-link:hover,
+.site-header--dark-scrolled .nav-link.active {
+  color: #FFFFFF;
+}
+
+.site-header--dark-scrolled .menu-toggle {
   color: #FFFFFF;
 }
 
@@ -2127,6 +2155,23 @@ select.form-control {
 }
 
 @media (max-width: 768px) {
+  /* Suprime botão circular nativo ou externo de voltar ao topo no mobile */
+  .back-to-top,
+  .scroll-top,
+  .scroll-to-top,
+  .btn-scroll-top,
+  .btn-top,
+  #back-to-top,
+  #scroll-top,
+  #scrollTop,
+  [data-action="scroll-top"],
+  [aria-label*="topo" i],
+  [title*="topo" i] {
+    display: none !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+  }
+
   /* Botões gerais sem estouro em telas estreitas */
   .btn {
     white-space: normal;
@@ -2148,13 +2193,34 @@ select.form-control {
   /* Seção Hero & Countdown */
   .hero {
     min-height: auto;
-    padding-top: calc(68px + 2rem);
+    padding-top: calc(68px + 2.5rem);
     padding-bottom: 3.5rem;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .hero-container {
+    width: 100%;
+    max-width: 100%;
+    padding-left: 1.25rem;
+    padding-right: 1.25rem;
+  }
+
+  .hero-content {
+    width: 100%;
+    max-width: 100%;
   }
 
   .as-h1 {
     font-size: clamp(1.85rem, 6.5vw, 2.45rem);
     line-height: 1.15;
+    max-width: 100%;
+  }
+
+  .as-hlead {
+    font-size: 1rem;
+    line-height: 1.6;
+    max-width: 100%;
   }
 
   .as-h2 {
@@ -2166,24 +2232,61 @@ select.form-control {
     flex-direction: column;
     width: 100%;
     gap: 12px;
+    margin-top: 1.75rem;
+    margin-bottom: 2.25rem;
   }
 
   .hero-cta-group .btn {
     width: 100%;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    white-space: nowrap;
+    padding: 14px 20px;
+  }
+
+  /* Countdown Timer Mobile */
+  .countdown-container {
+    width: 100%;
+    max-width: 100%;
+    margin-top: 1.25rem;
+  }
+
+  .countdown-title {
+    font-size: 0.75rem;
+    letter-spacing: 0.08em;
   }
 
   .countdown-grid {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
     gap: 8px;
   }
 
-  .countdown-number {
-    font-size: 1.75rem;
+  .countdown-card {
+    padding: 12px 4px;
+    overflow: visible;
   }
 
+  .countdown-number {
+    font-size: clamp(1.4rem, 6.5vw, 1.85rem);
+    line-height: 1.1;
+  }
+
+  .countdown-label {
+    font-size: 10px;
+    letter-spacing: 0.05em;
+    text-align: center;
+    white-space: nowrap;
+    overflow: visible;
+    margin-top: 4px;
+  }
+
+  /* Oculta selo flutuante para liberar 100% da largura horizontal no mobile */
   .as-stamp {
-    position: static;
-    margin-top: 2rem;
-    width: 100%;
+    display: none !important;
   }
 
   /* Seção 2: Programação */
@@ -2456,17 +2559,22 @@ select.form-control {
   }
 
   .countdown-card {
-    padding: 10px 4px;
+    padding: 10px 3px;
     border-radius: 12px;
+    overflow: visible;
   }
 
   .countdown-number {
     font-size: 1.45rem;
+    line-height: 1.1;
   }
 
   .countdown-label {
-    font-size: 0.62rem;
-    letter-spacing: 0.05em;
+    font-size: 10px;
+    letter-spacing: 0.04em;
+    text-align: center;
+    white-space: nowrap;
+    overflow: visible;
   }
 
   .mentor-stats-grid {
