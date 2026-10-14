@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <defs>
+    <!-- Background Gradient: Deep Sinapse Navy -->
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0D1734" />
+      <stop offset="100%" stop-color="#172259" />
+    </linearGradient>
+
+    <!-- Synapse Gradient: Clinical Blue to Ice -->
+    <linearGradient id="sinapseGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#6FA8DD" />
+      <stop offset="50%" stop-color="#2C86CC" />
+      <stop offset="100%" stop-color="#1E6CAC" />
+    </linearGradient>
+
+    <!-- Subtle Gold Accent for Sinapse Gala / Excellence -->
+    <linearGradient id="goldGala" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#F9E79F" />
+      <stop offset="100%" stop-color="#D4AF37" />
+    </linearGradient>
+
+    <!-- Soft Glow Filter -->
+    <filter id="softGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="12" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+  </defs>
+
+  <!-- Squircle Base with Deep Luxury Navy -->
+  <rect width="512" height="512" rx="128" fill="url(#bgGrad)" />
+  
+  <!-- Subtle Border Line -->
+  <rect width="504" height="504" x="4" y="4" rx="124" fill="none" stroke="rgba(255, 255, 255, 0.12)" stroke-width="8" />
+
+  <!-- Ambient Synaptic Glow behind S -->
+  <circle cx="256" cy="256" r="160" fill="rgba(44, 134, 204, 0.22)" filter="url(#softGlow)" />
+
+  <!-- Iconic Sinapse "S" Symbol -->
+  <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Main Dynamic "S" Path with Variable Weight / Curves -->
+    <path 
+      d="M356 182 C356 132, 318 102, 256 102 C194 102, 156 134, 156 186 C156 242, 204 266, 260 282 C316 298, 364 322, 364 382 C364 438, 318 472, 256 472 C188 472, 148 436, 148 382" 
+      stroke="url(#sinapseGrad)" 
+      stroke-width="54" 
+    />
+  </g>
+
+  <!-- Upper Synapse Node (Precision Dot) -->
+  <circle cx="368" cy="154" r="18" fill="url(#goldGala)" />
+
+  <!-- Lower Synapse Node -->
+  <circle cx="144" cy="410" r="18" fill="url(#sinapseGrad)" />
+</svg>

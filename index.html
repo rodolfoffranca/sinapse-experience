@@ -2,23 +2,38 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Sinapse Experience & Sinapse Premiação 2026 | Exclusivo para Distribuidores de OPME</title>
   
-  <!-- SEO Meta Tags -->
-  <meta name="description" content="Imersão executiva e noite de gala exclusiva para distribuidores de OPME (Trauma e Coluna). 11 de Dezembro de 2026 em São Paulo. 1 Titular + até 4 Líderes por empresa.">
-  <meta name="keywords" content="Sinapse Import, Sinapse Experience, Sinapse Premiação, OPME, Trauma, Coluna, Distribuidores Cirúrgicos, Liderança Exponencial">
+  <!-- SEO & WhatsApp / Open Graph Meta Tags -->
+  <meta name="description" content="11 de Dezembro de 2026 · São Paulo/SP. Imersão executiva em gestão, liderança e estratégia para distribuidores de OPME (Trauma e Coluna), encerrando com o Jantar de Gala Sinapse Premiação. 1 Titular + até 4 Líderes por empresa.">
+  <meta name="keywords" content="Sinapse Import, Sinapse Experience, Sinapse Premiação, OPME, Trauma, Coluna, Distribuidores Cirúrgicos, Liderança Exponencial, William Costa">
   <meta name="author" content="Sinapse Import">
   <meta name="theme-color" content="#0D1734">
 
-  <!-- Open Graph / Facebook -->
+  <!-- Open Graph / WhatsApp Preview Meta Tags -->
   <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Sinapse Import">
   <meta property="og:title" content="Sinapse Experience & Sinapse Premiação 2026">
-  <meta property="og:description" content="Um dia para virar a chave da sua distribuidora de OPME. Imersão executiva em gestão, liderança e estratégia + Jantar de Gala.">
-  <meta property="og:image" content="assets/img/logo-sinapse.png">
+  <meta property="og:description" content="11 de Dezembro em São Paulo · Um dia para virar a chave da sua distribuidora de OPME (Trauma e Coluna). Imersão executiva + Jantar de Gala. Exclusivo para distribuidores parceiros.">
+  <meta property="og:image" content="assets/img/og-sinapse.jpg">
+  <meta property="og:image:secure_url" content="assets/img/og-sinapse.jpg">
+  <meta property="og:image:type" content="image/jpeg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Sinapse Experience & Sinapse Premiação 2026 — Encontro Exclusivo de Distribuidores de OPME">
+  <meta property="og:locale" content="pt_BR">
 
-  <!-- Favicon -->
-  <link rel="icon" type="image/png" href="assets/img/logo-sinapse.png">
+  <!-- Twitter / X Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Sinapse Experience & Sinapse Premiação 2026">
+  <meta name="twitter:description" content="Imersão executiva e noite de gala para distribuidores parceiros de OPME. 11 de Dezembro de 2026 em São Paulo.">
+  <meta name="twitter:image" content="assets/img/og-sinapse.jpg">
+
+  <!-- Favicon Oficial com o 'S' da Sinapse -->
+  <link rel="icon" type="image/svg+xml" href="assets/img/favicon.svg">
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/img/favicon.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="assets/img/apple-touch-icon.png">
 
   <!-- Google Fonts & Stylesheet -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -93,8 +108,8 @@
           </a>
 
           <!-- Mobile Hamburger Toggle -->
-          <button type="button" class="menu-toggle" id="menu-toggle" aria-label="Abrir menu de navegação">
-            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <button type="button" class="menu-toggle" id="menu-toggle" aria-label="Abrir menu de navegação" aria-expanded="false" aria-controls="mobile-drawer">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
               <line x1="3" y1="12" x2="21" y2="12"></line>
               <line x1="3" y1="6" x2="21" y2="6"></line>
               <line x1="3" y1="18" x2="21" y2="18"></line>
@@ -106,11 +121,11 @@
   </header>
 
   <!-- Mobile Drawer Menu -->
-  <div class="mobile-drawer" id="mobile-drawer" aria-hidden="true">
+  <div class="mobile-drawer" id="mobile-drawer" aria-hidden="true" role="dialog" aria-modal="true" aria-label="Menu de Navegação Mobile">
     <div class="mobile-drawer-header">
-      <img src="assets/img/logo-sinapse.png" alt="Sinapse Import" style="height: 32px; filter: brightness(0) invert(1);">
-      <button type="button" id="menu-close" style="background: none; border: none; color: #fff; cursor: pointer; padding: 8px;">
-        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <img src="assets/img/logo-sinapse.png" alt="Sinapse Import" class="mobile-drawer-logo">
+      <button type="button" class="menu-close-btn" id="menu-close" aria-label="Fechar menu de navegação">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
           <line x1="18" y1="6" x2="6" y2="18"></line>
           <line x1="6" y1="6" x2="18" y2="18"></line>
         </svg>
@@ -577,10 +592,12 @@
             </svg>
           </div>
           <div class="logistics-alert-body">
-            <h4 class="logistics-alert-title">
-              <span>Aviso Logístico Importante</span>
-              Chegada Recomendada em São Paulo: 10 de Dezembro de 2026 (Quinta-feira)
-            </h4>
+            <div class="logistics-alert-head">
+              <span class="logistics-alert-badge">Aviso Logístico Importante</span>
+              <h4 class="logistics-alert-title">
+                Chegada Recomendada em São Paulo: 10 de Dezembro de 2026 (Quinta-feira)
+              </h4>
+            </div>
             <p class="logistics-alert-text">
               Como nossa programação no dia <strong>11 de dezembro (sexta-feira)</strong> tem início pontual com credenciamento e café da manhã às <strong>08h00</strong>, recomendamos enfaticamente que você e seus 4 líderes desembarquem em São Paulo na <strong>quinta-feira (10/12)</strong>. Nossa equipe de Concierge já reservou condições especiais nos hotéis parceiros a 100 metros do local.
             </p>
@@ -599,7 +616,7 @@
           <!-- Coluna 1: Retrato Executivo com Badge de Reconhecimento -->
           <div class="mentor-portrait-col">
             <div class="mentor-portrait-card">
-              <img src="assets/img/william-costa.jpg" alt="William Costa — Fundador da Sinapse Import e Mentor da Imersão" class="mentor-portrait-img">
+              <img src="assets/img/william.webp" alt="William Costa — Fundador da Sinapse Import e Mentor da Imersão" class="mentor-portrait-img" width="1122" height="1402" loading="lazy">
               <div class="mentor-portrait-overlay">
                 <h3 class="mentor-name">William Costa</h3>
                 <p class="mentor-role">Fundador & CEO da Sinapse Import · Especialista em Estruturação de OPME</p>
@@ -771,7 +788,7 @@
           </div>
 
           <div class="know-actions">
-            <a href="https://wa.me/5511987654321?text=Ol%C3%A1%2C%20gostaria%20de%20falar%20com%20a%20Concierge%20VIP%20do%20Sinapse%20Experience%20para%20reservar%20passagens%20e%20hot%C3%A9is%20parceiros%20da%20minha%20distribuidora!" target="_blank" rel="noopener noreferrer" class="btn btn--gold btn--lg" id="concierge-btn">
+            <a href="https://wa.me/5511945703064?text=Ol%C3%A1%2C%20gostaria%20de%20falar%20com%20a%20Concierge%20VIP%20do%20Sinapse%20Experience%20para%20reservar%20passagens%20e%20hot%C3%A9is%20parceiros%20da%20minha%20distribuidora!" target="_blank" rel="noopener noreferrer" class="btn btn--gold btn--lg" id="concierge-btn">
               <!-- WhatsApp SVG -->
               <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38c1.45.79 3.08 1.21 4.74 1.21 5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.816 9.816 0 0 0 12.04 2zm.01 16.67c-1.48 0-2.93-.4-4.2-1.15l-.3-.18-3.12.82.83-3.04-.2-.31a8.196 8.196 0 0 1-1.26-4.38c0-4.54 3.7-8.24 8.24-8.24 2.2 0 4.27.86 5.82 2.42a8.18 8.18 0 0 1 2.41 5.83c.02 4.54-3.68 8.23-8.22 8.23zm4.52-6.16c-.25-.12-1.47-.72-1.69-.81-.23-.08-.39-.12-.56.12-.17.25-.64.81-.79.97-.14.17-.29.19-.54.06-.25-.12-1.05-.39-1.99-1.23-.74-.66-1.23-1.47-1.38-1.72-.14-.25-.02-.38.11-.51.11-.11.25-.29.37-.43.12-.15.17-.25.25-.42.08-.17.04-.31-.02-.44-.06-.12-.56-1.34-.76-1.84-.2-.48-.41-.42-.56-.43h-.48c-.17 0-.44.06-.66.31-.23.25-.87.85-.87 2.07 0 1.22.89 2.4 1.01 2.56.12.17 1.75 2.67 4.23 3.74.59.26 1.05.41 1.41.53.59.19 1.13.16 1.56.1.48-.07 1.47-.6 1.67-1.18.21-.58.21-1.07.15-1.18-.06-.1-.23-.17-.48-.29z"/>
@@ -821,27 +838,27 @@
                 <div class="form-grid">
                   <div class="form-group">
                     <label class="form-label" for="company-name">Nome da Distribuidora (Empresa) <span class="req">*</span></label>
-                    <input type="text" id="company-name" class="form-control" placeholder="Ex: Distribuidora Trauma Prime OPME" required>
+                    <input type="text" id="company-name" class="form-control" placeholder="Ex: Distribuidora Trauma Prime OPME" autocomplete="organization" required>
                   </div>
 
                   <div class="form-group">
                     <label class="form-label" for="company-city">Cidade / UF <span class="req">*</span></label>
-                    <input type="text" id="company-city" class="form-control" placeholder="Ex: Belo Horizonte / MG" required>
+                    <input type="text" id="company-city" class="form-control" placeholder="Ex: Belo Horizonte / MG" autocomplete="address-level2" required>
                   </div>
 
                   <div class="form-group">
                     <label class="form-label" for="titular-name">Nome Completo do Titular (Dono/Sócio) <span class="req">*</span></label>
-                    <input type="text" id="titular-name" class="form-control" placeholder="Ex: Carlos Eduardo de Oliveira" required>
+                    <input type="text" id="titular-name" class="form-control" placeholder="Ex: Carlos Eduardo de Oliveira" autocomplete="name" autocapitalize="words" required>
                   </div>
 
                   <div class="form-group">
                     <label class="form-label" for="titular-phone">WhatsApp do Titular <span class="req">*</span></label>
-                    <input type="tel" id="titular-phone" class="form-control" placeholder="(00) 00000-0000" required>
+                    <input type="tel" id="titular-phone" class="form-control" placeholder="(00) 00000-0000" autocomplete="tel" inputmode="tel" required>
                   </div>
 
                   <div class="form-group">
                     <label class="form-label" for="titular-email">E-mail Corporativo <span class="req">*</span></label>
-                    <input type="email" id="titular-email" class="form-control" placeholder="carlos@traumaprime.com.br" required>
+                    <input type="email" id="titular-email" class="form-control" placeholder="carlos@traumaprime.com.br" autocomplete="email" inputmode="email" autocapitalize="none" required>
                   </div>
 
                   <div class="form-group">
@@ -958,7 +975,7 @@
           <span>Chamar Concierge no WhatsApp para Reservar Hotéis/Passagens</span>
         </a>
 
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+        <div class="modal-calendar-grid">
           <button type="button" class="btn btn--ghost-dark" id="btn-modal-calendar">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
@@ -1039,7 +1056,7 @@
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
             </svg>
-            <span>Concierge VIP: (11) 98765-4321</span>
+            <span>Concierge VIP: (11) 94570-3064</span>
           </div>
           <div class="foot-contact-item">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -1063,7 +1080,7 @@
         <div>
           © 2026 Sinapse Import. Todos os direitos reservados. Evento exclusivo para distribuidores credenciados de OPME.
         </div>
-        <div style="display: flex; gap: 20px;">
+        <div class="foot-bottom-tags">
           <span>Trauma & Coluna Vertebral</span>
           <span>·</span>
           <span>Longevidade & Sustentabilidade do Distribuidor</span>

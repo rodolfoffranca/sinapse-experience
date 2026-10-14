@@ -14,9 +14,10 @@ const EVENT_CONFIG = {
   venueName: "Espaço JK Iguatemi & Rooftop Eventos Faria Lima",
   venueAddress: "Av. Pres. Juscelino Kubitschek, 2041 - Vila Olímpia / Itaim Bibi, São Paulo - SP, 04543-011",
   googleMapsUrl: "https://www.google.com/maps/search/?api=1&query=Av.+Pres.+Juscelino+Kubitschek,+2041+-+Vila+Olimpia,+Sao+Paulo+-+SP",
-  wazeUrl: "https://waze.com/ul?q=Av.+Pres.+Juscelino+Kubitschek,+2041+Sao+Paulo",
-  conciergePhone: "5511987654321", // Telefone oficial da Concierge Sinapse
-  conciergeName: "Marcella / Concierge Sinapse VIP"
+  conciergePhone: "5511945703064", // Telefone oficial da Concierge Sinapse: +55 11 94570-3064
+  conciergeName: "Concierge Sinapse VIP",
+  // Cole aqui a URL gerada no Google Apps Script (veja o arquivo google-sheets-script.js)
+  googleSheetsWebhookUrl: "https://script.google.com/macros/s/AKfycbxl_kxi9TAlIFsISujuA0C753Wr7QIVXdPVEWE93Vi4GkkE7EXexmO2KJj48C8gqrvO/exec"
 };
 
 // ==========================================================================
@@ -99,7 +100,7 @@ function initHeaderScroll() {
 }
 
 // ==========================================================================
-// 4. MENU MOBILE
+// 4. MENU MOBILE (DRAWER ERGONÔMICO COM ACESSIBILIDADE)
 // ==========================================================================
 function initMobileMenu() {
   const toggleBtn = document.getElementById("menu-toggle");
@@ -111,11 +112,15 @@ function initMobileMenu() {
 
   function openMenu() {
     drawer.classList.add("is-open");
+    drawer.setAttribute("aria-hidden", "false");
+    toggleBtn.setAttribute("aria-expanded", "true");
     document.body.style.overflow = "hidden";
   }
 
   function closeMenu() {
     drawer.classList.remove("is-open");
+    drawer.setAttribute("aria-hidden", "true");
+    toggleBtn.setAttribute("aria-expanded", "false");
     document.body.style.overflow = "";
   }
 
@@ -124,6 +129,18 @@ function initMobileMenu() {
 
   mobileLinks.forEach(link => {
     link.addEventListener("click", closeMenu);
+  });
+
+  // Fechar ao clicar no backdrop (fora do conteúdo)
+  drawer.addEventListener("click", (e) => {
+    if (e.target === drawer) closeMenu();
+  });
+
+  // Fechar com tecla Escape
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && drawer.classList.contains("is-open")) {
+      closeMenu();
+    }
   });
 }
 
@@ -147,7 +164,7 @@ function initBentoSpotlight() {
 // 6. MÁSCARA TELEFÔNICA BRASILEIRA (00) 00000-0000
 // ==========================================================================
 function applyPhoneMask(input) {
-  input.addEventListener("input", function(e) {
+  input.addEventListener("input", function (e) {
     let value = e.target.value.replace(/\D/g, "");
     if (value.length > 11) value = value.slice(0, 11);
 
@@ -228,8 +245,8 @@ function renderLeaders() {
             </svg>
             Líder 0${index + 1}
           </span>
-          <button type="button" class="btn-remove-leader" onclick="removeLeader(${index})">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <button type="button" class="btn-remove-leader" onclick="removeLeader(${index})" aria-label="Remover Líder 0${index + 1}">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
               <path d="M18 6 6 18"/><path d="m6 6 12 12"/>
             </svg>
             Remover
@@ -239,7 +256,7 @@ function renderLeaders() {
         <div class="form-grid">
           <div class="form-group">
             <label class="form-label">Nome Completo do Líder <span class="req">*</span></label>
-            <input type="text" class="form-control leader-name" placeholder="Ex: Rodrigo Mendes" value="${leader.name || ''}" required oninput="updateLeaderField(${index}, 'name', this.value)">
+            <input type="text" class="form-control leader-name" placeholder="Ex: Rodrigo Mendes" value="${leader.name || ''}" autocomplete="name" autocapitalize="words" required oninput="updateLeaderField(${index}, 'name', this.value)">
           </div>
 
           <div class="form-group">
@@ -256,7 +273,7 @@ function renderLeaders() {
 
           <div class="form-group">
             <label class="form-label">WhatsApp Corporativo <span class="req">*</span></label>
-            <input type="tel" class="form-control leader-phone" placeholder="(00) 00000-0000" value="${leader.phone || ''}" required oninput="updateLeaderField(${index}, 'phone', this.value)">
+            <input type="tel" class="form-control leader-phone" placeholder="(00) 00000-0000" value="${leader.phone || ''}" autocomplete="tel" inputmode="tel" required oninput="updateLeaderField(${index}, 'phone', this.value)">
           </div>
 
           <div class="form-group">
@@ -280,13 +297,13 @@ function renderLeaders() {
 }
 
 // Funções globais chamadas pelo HTML inline
-window.updateLeaderField = function(index, field, value) {
+window.updateLeaderField = function (index, field, value) {
   if (leadersList[index]) {
     leadersList[index][field] = value;
   }
 };
 
-window.removeLeader = function(index) {
+window.removeLeader = function (index) {
   leadersList.splice(index, 1);
   renderLeaders();
 };
@@ -326,32 +343,60 @@ function handleFormSubmit(e) {
   e.preventDefault();
 
   const form = e.target;
-  const company = document.getElementById("company-name").value.trim();
-  const cityUf = document.getElementById("company-city").value.trim();
-  const titularName = document.getElementById("titular-name").value.trim();
-  const titularPhone = document.getElementById("titular-phone").value.trim();
-  const titularEmail = document.getElementById("titular-email").value.trim();
-  const titularShirt = document.getElementById("titular-shirt").value;
-  const termsAgreed = document.getElementById("terms-agree").checked;
+  const companyInput = document.getElementById("company-name");
+  const cityInput = document.getElementById("company-city");
+  const titularNameInput = document.getElementById("titular-name");
+  const titularPhoneInput = document.getElementById("titular-phone");
+  const titularEmailInput = document.getElementById("titular-email");
+  const titularShirtInput = document.getElementById("titular-shirt");
+  const termsAgreedInput = document.getElementById("terms-agree");
 
-  if (!company || !cityUf || !titularName || !titularPhone || !titularEmail || !titularShirt) {
-    alert("Por favor, preencha todos os campos obrigatórios do Titular.");
-    return;
+  const requiredFields = [
+    { el: companyInput, name: "Nome da Distribuidora" },
+    { el: cityInput, name: "Cidade / UF" },
+    { el: titularNameInput, name: "Nome do Titular (Dono/Sócio)" },
+    { el: titularPhoneInput, name: "WhatsApp do Titular" },
+    { el: titularEmailInput, name: "E-mail Corporativo" },
+    { el: titularShirtInput, name: "Tamanho de Camisa do Titular" }
+  ];
+
+  for (const field of requiredFields) {
+    if (!field.el || !field.el.value.trim()) {
+      field.el.classList.add("has-error");
+      field.el.scrollIntoView({ behavior: "smooth", block: "center" });
+      field.el.focus();
+      setTimeout(() => field.el.classList.remove("has-error"), 3500);
+      alert(`Por favor, preencha o campo obrigatório: ${field.name}.`);
+      return;
+    }
   }
 
-  if (!termsAgreed) {
+  if (!termsAgreedInput.checked) {
+    termsAgreedInput.focus();
+    termsAgreedInput.scrollIntoView({ behavior: "smooth", block: "center" });
     alert("Por favor, confirme a ciência da recomendação de chegada e do traje do jantar.");
     return;
   }
 
-  // Validar se os líderes preenchidos estão completos
+  // Validar se os líderes adicionados estão com dados completos
   for (let i = 0; i < leadersList.length; i++) {
     const l = leadersList[i];
     if (!l.name || !l.role || !l.phone || !l.shirt) {
+      const leaderCard = document.querySelector(`.leader-item-box[data-index="${i}"]`);
+      if (leaderCard) {
+        leaderCard.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
       alert(`Por favor, complete todos os dados do Líder 0${i + 1} ou remova o card.`);
       return;
     }
   }
+
+  const company = companyInput.value.trim();
+  const cityUf = cityInput.value.trim();
+  const titularName = titularNameInput.value.trim();
+  const titularPhone = titularPhoneInput.value.trim();
+  const titularEmail = titularEmailInput.value.trim();
+  const titularShirt = titularShirtInput.value;
 
   const submitBtn = document.getElementById("btn-submit-rsvp");
   const originalText = submitBtn.innerHTML;
@@ -362,6 +407,44 @@ function handleFormSubmit(e) {
     </svg>
     Processando Inscrição Exclusiva...
   `;
+
+  const payload = {
+    timestamp: new Date().toISOString(),
+    timestampFormatted: new Date().toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" }),
+    company,
+    cityUf,
+    titularName,
+    titularPhone,
+    titularEmail,
+    titularShirt,
+    totalAttendees: 1 + leadersList.length,
+    leadersCount: leadersList.length,
+    leaders: [...leadersList],
+    termsAgreed: true
+  };
+
+  // Salvar backup de segurança no localStorage do navegador
+  try {
+    const existing = JSON.parse(localStorage.getItem("sinapse_rsvp_history") || "[]");
+    existing.push(payload);
+    localStorage.setItem("sinapse_rsvp_history", JSON.stringify(existing));
+  } catch (err) {
+    console.warn("Não foi possível salvar localmente:", err);
+  }
+
+  // Enviar para o Google Sheets se o webhook estiver configurado
+  if (EVENT_CONFIG.googleSheetsWebhookUrl && EVENT_CONFIG.googleSheetsWebhookUrl.trim() !== "") {
+    fetch(EVENT_CONFIG.googleSheetsWebhookUrl.trim(), {
+      method: "POST",
+      mode: "no-cors", // Necessário para evitar bloqueio de CORS do Google Apps Script
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(payload)
+    }).catch(err => {
+      console.warn("Erro no envio para o Google Sheets:", err);
+    });
+  }
 
   setTimeout(() => {
     submitBtn.disabled = false;
@@ -375,7 +458,7 @@ function handleFormSubmit(e) {
       titularShirt,
       leaders: leadersList
     });
-  }, 800);
+  }, 700);
 }
 
 function showSuccessModal(data) {
@@ -423,8 +506,8 @@ function showSuccessModal(data) {
   `;
 
   // Construir link dinâmico para o WhatsApp da Concierge
-  let leaderNamesTxt = data.leaders.length > 0 
-    ? `\nLíderes que me acompanharão: ${data.leaders.map(l => `${l.name} (${l.role})`).join(", ")}` 
+  let leaderNamesTxt = data.leaders.length > 0
+    ? `\nLíderes que me acompanharão: ${data.leaders.map(l => `${l.name} (${l.role})`).join(", ")}`
     : "";
 
   const whatsappMessage = encodeURIComponent(
@@ -439,7 +522,7 @@ function showSuccessModal(data) {
   }
 
   if (calendarBtn) {
-    calendarBtn.onclick = function() {
+    calendarBtn.onclick = function () {
       downloadCalendarInvite(data);
     };
   }
@@ -506,7 +589,43 @@ function downloadCalendarInvite(data) {
 }
 
 // ==========================================================================
-// 10. INICIALIZAÇÃO GERAL
+// 10. COMPORTAMENTO ERGONÔMICO DO CTA FIXO (.ctafix)
+// Oculta automaticamente quando o usuário entra no formulário RSVP ou rodapé
+// para não sobrepor botões e inputs no mobile
+// ==========================================================================
+function initFloatingCta() {
+  const ctafix = document.querySelector(".ctafix");
+  const rsvpSection = document.getElementById("rsvp");
+  const footer = document.querySelector(".foot");
+
+  if (!ctafix || !rsvpSection) return;
+
+  if ("IntersectionObserver" in window) {
+    const observer = new IntersectionObserver((entries) => {
+      let isOverFormOrFooter = false;
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          isOverFormOrFooter = true;
+        }
+      });
+
+      if (isOverFormOrFooter) {
+        ctafix.classList.add("is-hidden");
+      } else {
+        ctafix.classList.remove("is-hidden");
+      }
+    }, {
+      rootMargin: "0px 0px -10% 0px",
+      threshold: 0.05
+    });
+
+    observer.observe(rsvpSection);
+    if (footer) observer.observe(footer);
+  }
+}
+
+// ==========================================================================
+// 11. INICIALIZAÇÃO GERAL
 // ==========================================================================
 document.addEventListener("DOMContentLoaded", () => {
   initCountdown();
@@ -514,6 +633,7 @@ document.addEventListener("DOMContentLoaded", () => {
   initMobileMenu();
   initBentoSpotlight();
   initRSVPForm();
+  initFloatingCta();
 
   // Fechar modal no clique de fechar ou backdrop
   const modal = document.getElementById("success-modal");
@@ -531,3 +651,4 @@ document.addEventListener("DOMContentLoaded", () => {
     if (e.key === "Escape") closeSuccessModal();
   });
 });
+
