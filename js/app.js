@@ -74,7 +74,7 @@ function initHeaderScroll() {
 
     if (!header) return;
 
-    if (scrollY <= 15) {
+    if (scrollY <= 10) {
       header.classList.remove("site-header--scrolled", "site-header--dark-scrolled");
     } else {
       // Identifica se o header está sobreposto a uma seção com fundo escuro
@@ -617,69 +617,65 @@ function downloadCalendarInvite(data) {
 // ==========================================================================
 function initFloatingCta() {
   const ctafix = document.querySelector(".ctafix");
-  const heroSection = document.getElementById("hero");
   const rsvpSection = document.getElementById("rsvp");
   const footer = document.querySelector(".foot");
 
   if (!ctafix) return;
 
-  // Inicia oculto na Hero
-  ctafix.classList.add("is-hidden");
-
-  if ("IntersectionObserver" in window) {
-    let isHeroVisible = true;
-    let isRsvpVisible = false;
-    let isFooterVisible = false;
-
-    function updateCta() {
-      if (isHeroVisible || isRsvpVisible || isFooterVisible) {
-        ctafix.classList.add("is-hidden");
-      } else {
-        ctafix.classList.remove("is-hidden");
-      }
-    }
-
-    if (heroSection) {
-      const heroObserver = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-          isHeroVisible = entry.isIntersecting;
-          updateCta();
-        });
-      }, {
-        threshold: 0.25
-      });
-      heroObserver.observe(heroSection);
-    }
-
-    const formObserver = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.target === rsvpSection) {
-          isRsvpVisible = entry.isIntersecting;
-        } else if (entry.target === footer) {
-          isFooterVisible = entry.isIntersecting;
-        }
-        updateCta();
-      });
-    }, {
-      threshold: 0.05
-    });
-
-    if (rsvpSection) formObserver.observe(rsvpSection);
-    if (footer) formObserver.observe(footer);
-  } else {
-    function checkCtaFallback() {
-      const scrollY = window.scrollY;
-      const heroHeight = heroSection ? heroSection.offsetHeight - 80 : 350;
-      const rsvpTop = rsvpSection ? rsvpSection.offsetTop - window.innerHeight : Infinity;
-      if (scrollY < heroHeight || scrollY > rsvpTop) {
-        ctafix.classList.add("is-hidden");
-      } else {
-        ctafix.classList.remove("is-hidden");
-      }
-    }
-    window.addEventListener("scroll", checkCtaFallback, { passive: true });
-    checkCtaFallback();
+  // Visível apenas após a Hero (scrollY > 500) e até o formulário (#rsvp) entrar na tela
+  function updateCta() {
+    const scrollY = window.scrollY;
+    const vh = window.innerHeight;
+    const rsvpTop = rsvpSection ? rsvpSection.getBoundingClientRect().top : Infinity;
+    const footerTop = footer ? footer.getBoundingClientRect().top : Infinity;
+    const inForm = rsvpTop < vh || footerTop < vh;
+    ctafix.classList.toggle("is-hidden", scrollY <= 500 || inForm);
+    ctafix.classList.toggle("is-on", scrollY > 500 && !inForm);
   }
+
+  window.addEventListener("scroll", updateCta, { passive: true });
+  window.addEventListener("resize", updateCta);
+  updateCta();
+}
+
+// ==========================================================================
+// 10b. ACCORDION DOS PILARES (MOBILE)
+// ==========================================================================
+function initPillarsAccordion() {
+  const tiles = document.querySelectorAll(".bento-tile");
+  const mq = window.matchMedia("(max-width: 768px)");
+
+  tiles.forEach((tile, i) => {
+    const toggle = () => {
+      if (!mq.matches) return;
+      const open = tile.classList.toggle("is-open");
+      tile.setAttribute("aria-expanded", open);
+    };
+    tile.addEventListener("click", toggle);
+    tile.addEventListener("keydown", e => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        toggle();
+      }
+    });
+  });
+
+  function sync() {
+    tiles.forEach((tile, i) => {
+      if (mq.matches) {
+        tile.setAttribute("role", "button");
+        tile.setAttribute("tabindex", "0");
+        tile.setAttribute("aria-expanded", tile.classList.contains("is-open"));
+      } else {
+        tile.removeAttribute("role");
+        tile.removeAttribute("tabindex");
+        tile.removeAttribute("aria-expanded");
+      }
+    });
+  }
+  if (tiles[0]) tiles[0].classList.add("is-open");
+  sync();
+  mq.addEventListener("change", sync);
 }
 
 // ==========================================================================
@@ -692,6 +688,7 @@ document.addEventListener("DOMContentLoaded", () => {
   initBentoSpotlight();
   initRSVPForm();
   initFloatingCta();
+  initPillarsAccordion();
 
   // Fechar modal no clique de fechar ou backdrop
   const modal = document.getElementById("success-modal");

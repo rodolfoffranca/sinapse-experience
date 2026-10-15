@@ -2682,3 +2682,171 @@ select.form-control {
 .mobile-drawer-footer .btn {
   width: 100%;
 }
+
+/* ==========================================================================
+   AJUSTES MOBILE FINAIS (bugs visuais + redução de scroll)
+   ========================================================================== */
+.site-header--dark-scrolled {
+  background: rgba(13, 23, 52, 0.92) !important;
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.site-header--scrolled {
+  background: rgba(255, 255, 255, 0.95) !important;
+}
+
+.form-block-title-badge {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hd-short { display: none; }
+
+.ctafix.is-on { opacity: 1; visibility: visible; }
+
+@media (max-width: 900px) {
+  .as-stamp { display: none !important; }
+  .as-hlead { max-width: 100%; }
+}
+
+@media (max-width: 768px) {
+  /* Header sólido por padrão no mobile */
+  .site-header {
+    background: rgba(13, 23, 52, 0.92) !important;
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  }
+  .site-header.site-header--scrolled {
+    background: rgba(255, 255, 255, 0.95) !important;
+    border-bottom: 1px solid rgba(20, 24, 44, 0.08);
+  }
+
+  /* Botões CTA da Hero e do Menu Mobile */
+  .hero-cta-group .btn,
+  .mobile-drawer-footer .btn {
+    width: 100%;
+    max-width: 100%;
+    padding: 15px 20px;
+    border-radius: 999px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    white-space: nowrap;
+    font-size: 15px;
+  }
+
+  /* Countdown */
+  .countdown-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    width: 100%;
+    max-width: 360px;
+  }
+  .countdown-label { text-transform: uppercase; }
+
+  /* Espaçamento vertical */
+  .section, section.section {
+    padding-top: 48px;
+    padding-bottom: 48px;
+  }
+  .section-head { margin-bottom: 1.5rem; }
+
+  /* Pilares: accordion */
+  .bento-grid { gap: 10px; }
+  .bento-tile {
+    display: grid;
+    grid-template-columns: 44px 1fr 24px;
+    column-gap: 12px;
+    align-items: center;
+    padding: 14px 16px;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .bento-tile .bento-ico-wrap {
+    grid-row: 1 / span 2;
+    grid-column: 1;
+    width: 44px;
+    height: 44px;
+    margin: 0;
+  }
+  .bento-tile .bento-tag { grid-column: 2; grid-row: 1; margin: 0; }
+  .bento-tile .bento-title {
+    grid-column: 2;
+    grid-row: 2;
+    margin: 2px 0 0;
+    font-size: 1rem;
+    line-height: 1.25;
+  }
+  .bento-tile::after {
+    content: "";
+    grid-column: 3;
+    grid-row: 1 / span 2;
+    width: 9px;
+    height: 9px;
+    justify-self: center;
+    border-right: 2px solid currentColor;
+    border-bottom: 2px solid currentColor;
+    transform: rotate(45deg);
+    transition: transform 0.25s var(--ease);
+    opacity: 0.7;
+  }
+  .bento-tile.is-open::after { transform: rotate(-135deg); }
+  .bento-tile .bento-desc,
+  .bento-tile .bento-highlight {
+    grid-column: 1 / -1;
+    display: none;
+  }
+  .bento-tile.is-open .bento-desc { display: block; margin-top: 12px; }
+  .bento-tile.is-open .bento-highlight { display: flex; margin-top: 10px; }
+
+  /* Líderes: grid 2x2 compacto */
+  .leaders-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+  .leader-card { padding: 14px 12px; }
+  .leader-card-num { display: none; }
+  .leader-card-icon { width: 36px; height: 36px; margin-bottom: 8px; }
+  .leader-card-role { font-size: 0.95rem; line-height: 1.2; margin-bottom: 4px; }
+  .leader-card-desc {
+    font-size: 0.78rem;
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  /* Hotéis: linha compacta */
+  .hotels-wrap { gap: 10px; }
+  .hotel-item-card {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 12px 14px;
+    border-radius: 14px;
+  }
+  .hotel-item-info { gap: 4px; min-width: 0; }
+  .hotel-sub { display: none; }
+  .hotel-name { font-size: 0.98rem; line-height: 1.2; }
+  .hotel-dist-badge { font-size: 0.7rem; white-space: nowrap; }
+  .hd-long { display: none; }
+  .hd-short { display: inline; }
+  .hotel-item-card .btn {
+    width: auto;
+    flex-shrink: 0;
+    padding: 8px 16px;
+    font-size: 0.85rem;
+    white-space: nowrap;
+  }
+}
