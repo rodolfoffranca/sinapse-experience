@@ -104,7 +104,7 @@ function initNav() {
 
   function onScroll() {
     const heroBottom = hero.getBoundingClientRect().bottom;
-    nav.classList.toggle("is-solid", window.scrollY > 40);
+    nav.classList.toggle("is-solid", window.scrollY > 20);
 
     const vh = window.innerHeight;
     const inForm = rsvp.getBoundingClientRect().top < vh * 0.85 && rsvp.getBoundingClientRect().bottom > 0;
@@ -457,7 +457,34 @@ function initModal() {
 }
 
 // ==========================================================================
-// 7. MOVIMENTO (GSAP + ScrollTrigger)
+// 7. HERO — indicador dia/noite sincronizado com o vídeo
+// ==========================================================================
+function initHeroPhase() {
+  const v = $("#hero-video");
+  const bar = $("#phase-progress");
+  const rows = $$(".phase__row");
+  if (!v || !bar) return;
+  // o vídeo vira noite por volta de 55% da duração
+  const NIGHT_AT = 0.6;
+  let raf = null;
+  function tick() {
+    if (v.duration) {
+      const p = v.currentTime / v.duration;
+      bar.style.transform = `scaleX(${p})`;
+      const night = p >= NIGHT_AT;
+      rows.forEach((r) => r.classList.toggle("is-active", (r.dataset.phase === "night") === night));
+    }
+    raf = requestAnimationFrame(tick);
+  }
+  const io = new IntersectionObserver(([e]) => {
+    if (e.isIntersecting) { if (!raf) raf = requestAnimationFrame(tick); }
+    else { cancelAnimationFrame(raf); raf = null; }
+  });
+  io.observe(v);
+}
+
+// ==========================================================================
+// 8. MOVIMENTO (GSAP + ScrollTrigger)
 // ==========================================================================
 function splitWords(el) {
   const walk = (node) => {
@@ -470,11 +497,60 @@ function splitWords(el) {
           else { const s = document.createElement("span"); s.className = "w"; s.textContent = part; frag.appendChild(s); }
         });
         n.replaceWith(frag);
-      } else if (n.nodeType === 1) walk(n);
+      } else if (n.nodeType === 1 && n.tagName !== "BR") walk(n);
     });
   };
   walk(el);
   return $$(".w", el);
+}
+
+function initDayNight(g) {
+  const sec = $(".dn");
+  if (!sec) return;
+  const timeEl = $("#dn-time");
+  const track = $("#dn-track");
+  const clock = { t: 8 }; // horas decimais 08:00 → 23:00
+  const fmt = (t) => `${String(Math.floor(t)).padStart(2, "0")}:${String(Math.floor((t % 1) * 60 / 15) * 15).padStart(2, "0")}`;
+
+  const tl = g.timeline({
+    defaults: { ease: "none" },
+    scrollTrigger: {
+      trigger: sec, start: "top top", end: "bottom bottom", scrub: 0.7,
+      onUpdate: (self) => sec.classList.toggle("is-night", self.progress > 0.56)
+    }
+  });
+  tl.fromTo("#dn-frame", { scale: 0.9 }, { scale: 1, duration: 0.2, ease: "power2.out" }, 0)
+    .to(clock, { t: 18, duration: 0.35, onUpdate: () => { timeEl.textContent = fmt(clock.t); } }, 0)
+    .to(track, { scaleX: 10 / 15, duration: 0.35 }, 0)
+    // anoitecer: a noite entra da direita para a esquerda
+    .to("#dn-seam", { opacity: 1, duration: 0.03 }, 0.36)
+    .to("#dn-night", { clipPath: "inset(0 0 0 0%)", duration: 0.3, ease: "power1.inOut" }, 0.38)
+    .to("#dn-seam", { left: "0%", duration: 0.3, ease: "power1.inOut" }, 0.38)
+    .to("#dn-seam", { opacity: 0, duration: 0.03 }, 0.66)
+    .to(sec, { backgroundColor: "#0A1130", duration: 0.25 }, 0.4)
+    .to(clock, { t: 23, duration: 0.3, onUpdate: () => { timeEl.textContent = fmt(clock.t); } }, 0.38)
+    .to(track, { scaleX: 1, duration: 0.3 }, 0.38)
+    .to("#cap-day", { autoAlpha: 0, y: -12, duration: 0.06 }, 0.42)
+    .fromTo("#cap-night", { autoAlpha: 0, y: 14 }, { autoAlpha: 1, y: 0, duration: 0.08 }, 0.6)
+    .to({}, { duration: 0.2 }); // respiro no fim
+}
+
+function initPillarStack(g) {
+  const cards = $$(".pcard");
+  cards.forEach((card, i) => {
+    const next = cards[i + 1];
+    if (!next) return;
+    g.fromTo(card, { scale: 1, filter: "brightness(1)" }, {
+      scale: 0.94, filter: "brightness(0.8)", ease: "none",
+      scrollTrigger: { trigger: next, start: "top 85%", end: "top 25%", scrub: true }
+    });
+  });
+}
+
+function initMarquee() {
+  const t = $(".marquee__track");
+  if (!t) return;
+  t.innerHTML += t.innerHTML; // duplica para loop contínuo
 }
 
 function initMotion() {
@@ -488,30 +564,26 @@ function initMotion() {
 
   // Hero
   const tl = g.timeline({ defaults: { ease: "expo.out" } });
-  tl.to("[data-hero-frame]", { clipPath: "inset(0% 0% 0% 0% round 30px)", duration: 1.4, ease: "expo.inOut" }, 0)
-    .fromTo(".hero__video", { scale: 1.18 }, { scale: 1.04, duration: 2.2, ease: "expo.out" }, 0)
+  tl.to("[data-hero-frame]", { clipPath: "inset(0% 0% 0% 0% round 32px)", duration: 1.4, ease: "expo.inOut" }, 0)
+    .fromTo(".hero__video", { scale: 1.14 }, { scale: 1, duration: 2.2 }, 0)
     .to("[data-hero-line]", { y: 0, duration: 1.2, stagger: 0.09 }, 0.55)
     .to("[data-hero-item]", { opacity: 1, y: 0, duration: 0.9, stagger: 0.06 }, 0.8);
 
-  // Vídeo do hero desacelera levemente ao rolar
-  g.to(".hero__video", { yPercent: 8, ease: "none", scrollTrigger: { trigger: ".hero", start: "top top", end: "bottom top", scrub: true } });
-
   // Reveals
   ST.batch("[data-reveal]", {
-    start: "top 88%",
-    once: true,
-    onEnter: (els) => g.to(els, { opacity: 1, y: 0, duration: 1, ease: "expo.out", stagger: 0.08, onComplete() { els.forEach((e) => e.classList.add("is-in")); } })
+    start: "top 88%", once: true,
+    onEnter: (els) => g.to(els, { opacity: 1, y: 0, duration: 1, ease: "expo.out", stagger: 0.08 })
   });
 
-  // Parallax de imagens
+  // Parallax
   $$("[data-parallax]").forEach((img) => {
     g.fromTo(img, { yPercent: -6 }, { yPercent: 6, ease: "none", scrollTrigger: { trigger: img.parentElement, start: "top bottom", end: "bottom top", scrub: true } });
   });
 
-  // Palavras acendendo conforme a rolagem
+  // Palavras acendendo
   $$("[data-reveal-words]").forEach((el) => {
     const words = splitWords(el);
-    g.to(words, { opacity: 1, stagger: 0.04, ease: "none", scrollTrigger: { trigger: el, start: "top 80%", end: "bottom 45%", scrub: 0.6 } });
+    g.to(words, { opacity: 1, stagger: 0.04, ease: "none", scrollTrigger: { trigger: el, start: "top 82%", end: "bottom 50%", scrub: 0.6 } });
   });
 
   // Contadores
@@ -522,24 +594,26 @@ function initMotion() {
     g.to(obj, { v: target, duration: 1.4, ease: "power2.out", snap: { v: 1 }, scrollTrigger: { trigger: el, start: "top 90%", once: true }, onUpdate: () => (el.textContent = obj.v) });
   });
 
+  initDayNight(g);
+  initPillarStack(g);
+
   window.addEventListener("load", () => ST.refresh());
 }
 
 // ==========================================================================
-// 8. INIT
+// 9. INIT
 // ==========================================================================
-if (!reduceMotion) document.documentElement.classList.add("js-motion");
-
 document.addEventListener("DOMContentLoaded", () => {
   applyDinner();
   initCountdown();
   initNav();
   initForm();
   initModal();
+  initMarquee();
   initMotion();
+  initHeroPhase();
 
-  // Vídeo: respeita economia de dados / movimento reduzido
-  const v = $(".hero__video");
+  const v = $("#hero-video");
   if (v) {
     const saveData = navigator.connection && navigator.connection.saveData;
     if (reduceMotion || saveData) { v.removeAttribute("autoplay"); v.pause(); }
