@@ -1,6 +1,6 @@
 /**
  * ============================================================================
- * SINAPSE EXPERIENCE & SINAPSE PREMIAÇÃO 2026
+ * SINAPSE EXPERIENCE 2026 (Imersão + Noite de Celebração)
  * Google Apps Script — Integração de RSVP com Google Sheets
  * ============================================================================
  * 
@@ -40,9 +40,9 @@ function doPost(e) {
         "Qtd Líderes",
         "Líder 01 (Nome | Cargo | WhatsApp | Camisa)",
         "Líder 02 (Nome | Cargo | WhatsApp | Camisa)",
-        "Líder 03 (Nome | Cargo | WhatsApp | Camisa)",
-        "Líder 04 (Nome | Cargo | WhatsApp | Camisa)",
-        "Termos de Chegada & Gala Aceitos"
+        "Líder 03 (não usado desde out/2026)",
+        "Líder 04 (não usado desde out/2026)",
+        "Ciente da chegada 10/12 e traje"
       ];
       
       sheet.appendRow(headers);
@@ -88,7 +88,7 @@ function doPost(e) {
       l4 = data.leader4 || "—";
     }
     
-    var termsAgreed = data.termsAgreed ? "Sim (Ciente 10/12 e Passeio Completo)" : "Sim";
+    var termsAgreed = data.termsAgreed ? "Sim (ciente 10/12 e traje passeio completo)" : "Sim";
     
     // Adiciona a nova linha de confirmação
     sheet.appendRow([
