@@ -11,9 +11,9 @@ const EVENT_CONFIG = {
   targetDate: new Date("2026-12-11T08:00:00-03:00").getTime(),
   arrivalDate: "10 de Dezembro de 2026 (Quinta-feira)",
   eventDateFormatted: "11 de Dezembro de 2026 (Sexta-feira)",
-  venueName: "Espaço JK Iguatemi & Rooftop Eventos Faria Lima",
-  venueAddress: "Av. Pres. Juscelino Kubitschek, 2041 - Vila Olímpia / Itaim Bibi, São Paulo - SP, 04543-011",
-  googleMapsUrl: "https://www.google.com/maps/search/?api=1&query=Av.+Pres.+Juscelino+Kubitschek,+2041+-+Vila+Olimpia,+Sao+Paulo+-+SP",
+  venueName: "Ideal Hub — Edifício Corporate Plaza",
+  venueAddress: "Rua Alexandre Dumas, 2100 - 14º Andar — Chácara Santo Antônio, São Paulo - SP",
+  googleMapsUrl: "https://www.google.com/maps/search/?api=1&query=Rua+Alexandre+Dumas,+2100+-+Chacara+Santo+Antonio,+Sao+Paulo+-+SP",
   conciergePhone: "5511945703064", // Telefone oficial da Concierge Sinapse: +55 11 94570-3064
   conciergeName: "Concierge Sinapse VIP",
   // Cole aqui a URL gerada no Google Apps Script (veja o arquivo google-sheets-script.js)
