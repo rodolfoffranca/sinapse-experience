@@ -464,8 +464,8 @@ function initHeroPhase() {
   const bar = $("#phase-progress");
   const rows = $$(".phase__row");
   if (!v || !bar) return;
-  // o vídeo vira noite por volta de 55% da duração
-  const NIGHT_AT = 0.6;
+  // o vídeo anoitece (cidade) por volta de 45% da duração
+  const NIGHT_AT = 0.45;
   let raf = null;
   function tick() {
     if (v.duration) {
@@ -519,19 +519,16 @@ function initDayNight(g) {
       onUpdate: (self) => sec.classList.toggle("is-night", self.progress > 0.56)
     }
   });
+  g.set("#dn-night", { y: 0, yPercent: 101 });
   tl.fromTo("#dn-frame", { scale: 0.9 }, { scale: 1, duration: 0.2, ease: "power2.out" }, 0)
     .to(clock, { t: 18, duration: 0.35, onUpdate: () => { timeEl.textContent = fmt(clock.t); } }, 0)
     .to(track, { scaleX: 10 / 15, duration: 0.35 }, 0)
-    // anoitecer: a noite entra da direita para a esquerda
-    .to("#dn-seam", { opacity: 1, duration: 0.03 }, 0.36)
-    .to("#dn-night", { clipPath: "inset(0 0 0 0%)", duration: 0.3, ease: "power1.inOut" }, 0.38)
-    .to("#dn-seam", { left: "0%", duration: 0.3, ease: "power1.inOut" }, 0.38)
-    .to("#dn-seam", { opacity: 0, duration: 0.03 }, 0.66)
+    // anoitecer: o card do restaurante sobe e cobre o do evento corporativo
+    .to("#dn-day", { scale: 0.9, yPercent: -3, opacity: 0.35, duration: 0.3, ease: "power1.inOut" }, 0.38)
+    .to("#dn-night", { yPercent: 0, duration: 0.3, ease: "power2.inOut" }, 0.38)
     .to(sec, { backgroundColor: "#0A1130", duration: 0.25 }, 0.4)
     .to(clock, { t: 23, duration: 0.3, onUpdate: () => { timeEl.textContent = fmt(clock.t); } }, 0.38)
     .to(track, { scaleX: 1, duration: 0.3 }, 0.38)
-    .to("#cap-day", { autoAlpha: 0, y: -12, duration: 0.06 }, 0.42)
-    .fromTo("#cap-night", { autoAlpha: 0, y: 14 }, { autoAlpha: 1, y: 0, duration: 0.08 }, 0.6)
     .to({}, { duration: 0.2 }); // respiro no fim
 }
 

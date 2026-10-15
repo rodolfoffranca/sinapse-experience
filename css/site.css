@@ -297,37 +297,35 @@ figure { margin: 0; }
 .dn__track span:first-of-type { transform: none; }
 .dn__track span:last-of-type { transform: translateX(-100%); }
 
-.dn__frame { position: relative; border-radius: var(--r-xl); overflow: hidden; background: var(--night); }
-.dn__layer { margin: 0; }
-.dn__layer img { width: 100%; height: 100%; object-fit: cover; }
-.dn__seam { display: none; }
-.dn__cap { padding: 22px 24px; display: grid; gap: 6px; color: #fff; }
+.dn__frame { position: relative; }
+.dn__layer { position: relative; margin: 0; border-radius: var(--r-xl); overflow: hidden; background: var(--night); isolation: isolate; }
+.dn__layer > img { width: 100%; height: 100%; object-fit: cover; }
+.dn__layer::after { content: ""; position: absolute; inset: 0; z-index: 0; pointer-events: none; background: linear-gradient(0deg, rgba(8,13,38,.55) 0%, rgba(8,13,38,0) 45%); }
+.dn__loc { position: absolute; z-index: 2; top: clamp(14px, 2vw, 22px); left: clamp(14px, 2vw, 22px); background: rgba(10,17,48,.38); border-color: rgba(255,255,255,.22); }
+.dn__loc .i { width: 16px; height: 16px; }
+.dn__cap { position: relative; z-index: 2; padding: 22px 24px; display: grid; gap: 6px; color: #fff; }
 .dn__k { font-size: 12.5px; letter-spacing: .06em; text-transform: uppercase; color: rgba(255,255,255,.7); }
 .dn__cap h3 { font-family: var(--display); font-size: clamp(1.8rem, 3.2vw, 2.8rem); letter-spacing: -.035em; line-height: 1.02; }
 .dn__cap p:not(.dn__k):not(.dn__place) { color: rgba(255,255,255,.82); max-width: 40ch; }
 .dn__place { margin-top: 6px; padding-top: 12px; border-top: 1px solid var(--line-l); font-size: 14px; color: rgba(255,255,255,.75); }
 .dn__cap--night .dn__k { color: #F6E3BC; }
 
-/* fallback sem movimento: duas imagens empilhadas */
-html:not(.js-motion) .dn__frame { display: grid; background: transparent; gap: 16px; }
-html:not(.js-motion) .dn__layer { border-radius: var(--r-xl); overflow: hidden; aspect-ratio: 16 / 9; }
-html:not(.js-motion) .dn__cap { background: var(--night); border-radius: var(--r-lg); }
-html:not(.js-motion) .dn__layer--day { order: 1; } html:not(.js-motion) .dn__cap--day { order: 2; }
-html:not(.js-motion) .dn__layer--night { order: 3; } html:not(.js-motion) .dn__cap--night { order: 4; }
+/* fallback sem movimento: dois cards empilhados */
+html:not(.js-motion) .dn__frame { display: grid; gap: 16px; }
+html:not(.js-motion) .dn__layer > img { aspect-ratio: 16 / 9; height: auto; }
+html:not(.js-motion) .dn__cap { background: var(--night); }
 
-/* modo cena (com JS + movimento) */
+/* modo cena (com JS + movimento): o card do restaurante sobe e cobre o do evento */
 .js-motion .dn { height: 340vh; }
 .js-motion .dn__sticky { position: sticky; top: 0; height: 100svh; padding: calc(var(--nav-h) + 8px) 0 24px; align-content: center; gap: clamp(18px, 3vh, 32px); }
-.js-motion .dn__frame { height: min(62svh, 640px); transform-origin: 50% 40%; }
-.js-motion .dn__layer { position: absolute; inset: 0; }
-.js-motion .dn__layer--night { clip-path: inset(0 0 0 100%); }
-.js-motion .dn__seam { display: block; position: absolute; top: 0; bottom: 0; left: 100%; width: 2px; margin-left: -1px; background: linear-gradient(180deg, rgba(255,255,255,0), #fff 30%, #fff 70%, rgba(255,255,255,0)); box-shadow: 0 0 24px 4px rgba(233,194,122,.55); opacity: 0; }
+.js-motion .dn__frame { height: min(62svh, 640px); overflow: hidden; border-radius: var(--r-xl); }
+.js-motion .dn__layer { position: absolute; inset: 0; transform-origin: 50% 0%; will-change: transform; }
+.js-motion .dn__layer--night { transform: translateY(101%); box-shadow: 0 -30px 60px -20px rgba(0,0,0,.45); }
 .js-motion .dn__cap {
   position: absolute; left: clamp(14px, 2vw, 24px); bottom: clamp(14px, 2vw, 24px); width: min(440px, calc(100% - 28px));
   background: rgba(10,17,48,.42); border: 1px solid rgba(255,255,255,.16); border-radius: var(--r-lg);
   backdrop-filter: blur(18px) saturate(1.3); -webkit-backdrop-filter: blur(18px) saturate(1.3);
 }
-.js-motion .dn__cap--night { opacity: 0; visibility: hidden; }
 .dn.is-night .dn__title { color: #fff; }
 .dn.is-night .dn__title .mute { color: rgba(255,255,255,.45); }
 .dn.is-night .pill--auto { color: rgba(255,255,255,.86); border-color: rgba(255,255,255,.22); }
@@ -630,3 +628,4 @@ html:not(.js-motion) .dn__layer--night { order: 3; } html:not(.js-motion) .dn__c
 }
 .rsvp__head .pill { justify-self: center; }
 .hero__content .pill--glass { background: rgba(10,17,48,.38); border-color: rgba(255,255,255,.22); }
+@media (max-width: 520px) { .hide-sm { display: none; } }
