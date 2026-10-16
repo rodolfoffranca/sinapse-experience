@@ -12,8 +12,7 @@
  * 4. Autorize o acesso com a conta Google dona da planilha.
  * 5. Copie a "URL do app da Web" (termina com /exec) e coloque em
  *    js/app.js > EVENT_CONFIG.googleSheetsWebhooks.
- * 6. Rode a função configurarPlanilha (ou, na planilha, menu Sinapse >
- *    "Aplicar visual e atualizar painel"). Ela:
+ * 6. Rode a função configurarPlanilha pelo editor (Executar). Ela:
  *    - acerta o fuso para São Paulo e o idioma para português;
  *    - apaga linhas de teste (ID "SX-TESTE…" ou sem ID);
  *    - formata a aba "Inscrições" (cabeçalho por grupo, faixas, cores de status, filtro);
@@ -152,18 +151,9 @@ function testarInscricao() {
   Logger.log(doPost(fake).getContent());
 }
 
-/* ================================ MENU =================================== */
-
-function onOpen() {
-  SpreadsheetApp.getUi().createMenu("Sinapse")
-    .addItem("Aplicar visual e atualizar painel", "configurarPlanilha")
-    .addItem("Apagar linhas de teste", "limparTestes")
-    .addToUi();
-}
-
 /* =============================== VISUAL ================================== */
 
-// Rode pelo editor (Executar > configurarPlanilha) ou pelo menu Sinapse
+// Rode pelo editor (Executar > configurarPlanilha). Pode rodar de novo quando quiser.
 function configurarPlanilha() {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   ss.setSpreadsheetTimeZone("America/Sao_Paulo");
