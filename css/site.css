@@ -629,3 +629,6 @@ html:not(.js-motion) .dn__cap { background: var(--night); }
 .rsvp__head .pill { justify-self: center; }
 .hero__content .pill--glass { background: rgba(10,17,48,.38); border-color: rgba(255,255,255,.22); }
 @media (max-width: 520px) { .hide-sm { display: none; } }
+.pcard__quote { margin: 0; padding-left: 16px; border-left: 2px solid var(--accent); font-family: var(--display); font-weight: 400; font-size: clamp(1.1rem, 1.6vw, 1.35rem); line-height: 1.3; letter-spacing: -.015em; max-width: 34ch; text-wrap: balance; }
+.pcard--navy .pcard__quote { border-color: var(--warm); }
+.pcard__text + .pcard__text { margin-top: -12px; }

@@ -12,12 +12,11 @@ const EVENT_CONFIG = {
   venueName: "Ideal Hub — Edifício Corporate Plaza",
   venueAddress: "Rua Alexandre Dumas, 2100 - 14º andar — Chácara Santo Antônio, São Paulo - SP",
 
-  // Noite de Celebração — preencha quando o local for fechado.
-  // Enquanto "name" estiver vazio, a página mostra "Local em definição / Local em breve".
+  // Noite de Celebração — no mesmo local da imersão (usado no convite de agenda)
   dinner: {
-    name: "",
-    address: "",          // ex.: "Rua X, 123 — Bairro, São Paulo - SP"
-    mapsQuery: ""         // ex.: "Rua X, 123, São Paulo"
+    name: "Ideal Hub — mesmo local da imersão",
+    address: "",
+    mapsQuery: ""
   },
 
   // Concierge (WhatsApp)
@@ -523,7 +522,7 @@ function initDayNight(g) {
   tl.fromTo("#dn-frame", { scale: 0.9 }, { scale: 1, duration: 0.2, ease: "power2.out" }, 0)
     .to(clock, { t: 18, duration: 0.35, onUpdate: () => { timeEl.textContent = fmt(clock.t); } }, 0)
     .to(track, { scaleX: 10 / 15, duration: 0.35 }, 0)
-    // anoitecer: o card do restaurante sobe e cobre o do evento corporativo
+    // anoitecer: o card da noite sobe e cobre o do dia
     .to("#dn-day", { scale: 0.9, yPercent: -3, opacity: 0.35, duration: 0.3, ease: "power1.inOut" }, 0.38)
     .to("#dn-night", { yPercent: 0, duration: 0.3, ease: "power2.inOut" }, 0.38)
     .to(sec, { backgroundColor: "#0A1130", duration: 0.25 }, 0.4)
