@@ -61,96 +61,6 @@ var COR_STATUS = {
   "Cancelada":     ["#EEEFF3", "#8A8FA3", "#B5BACB"]
 };
 
-/* ============================== WEBHOOK ================================== */
-
-function doPost(e) {
-  var lock = LockService.getScriptLock();
-  lock.waitLock(20000);
-  try {
-    var data = {};
-    if (e && e.postData && e.postData.contents) {
-      data = JSON.parse(e.postData.contents);
-    } else if (e && e.parameter) {
-      data = e.parameter;
-    }
-
-    var sheet = getAba_();
-    var id = String(data.submissionId || "");
-
-    // Evita duplicar a mesma inscrição
-    if (id && jaExiste_(sheet, id)) {
-      return json_({ status: "duplicate", id: id });
-    }
-
-    var leaders = data.leaders || [];
-    var l1 = leaders[0] || {};
-    var l2 = leaders[1] || {};
-
-    var linha = [
-      id,
-      new Date(),
-      data.company || "",
-      data.cityUf || "",
-      data.titularName || "",
-      data.titularPhone || "",
-      data.titularEmail || "",
-      data.titularShirt || "",
-      Number(data.totalAttendees || 1 + leaders.length),
-      l1.name || "", l1.role || "", l1.phone || "", l1.shirt || "",
-      l2.name || "", l2.role || "", l2.phone || "", l2.shirt || "",
-      data.termsAgreed ? "Sim" : "Não",
-      "Nova",
-      ""
-    ];
-
-    sheet.appendRow(linha);
-
-    if (AVISO_EMAIL) {
-      MailApp.sendEmail({
-        to: AVISO_EMAIL,
-        subject: "Planilha: nova inscrição " + id + " — " + (data.company || ""),
-        body: "Nova inscrição registrada na planilha.\n\n" +
-          "ID: " + id + "\nDistribuidora: " + (data.company || "") +
-          "\nTitular: " + (data.titularName || "") +
-          "\nTotal de pessoas: " + (data.totalAttendees || "") +
-          "\n\nPlanilha: " + SpreadsheetApp.getActiveSpreadsheet().getUrl()
-      });
-    }
-
-    return json_({ status: "success", id: id });
-  } catch (err) {
-    return json_({ status: "error", message: String(err) });
-  } finally {
-    lock.releaseLock();
-  }
-}
-
-// Abrir a URL /exec no navegador mostra se o webhook está no ar
-function doGet() {
-  return json_({ status: "online", service: "Sinapse Experience 2026 — inscrições", time: new Date().toISOString() });
-}
-
-// Rode esta função uma vez pelo editor para testar (cria uma linha de TESTE)
-function testarInscricao() {
-  var fake = {
-    postData: {
-      contents: JSON.stringify({
-        submissionId: "SX-TESTE1",
-        company: "TESTE — pode apagar esta linha",
-        cityUf: "São Paulo / SP",
-        titularName: "Teste",
-        titularPhone: "(11) 90000-0000",
-        titularEmail: "teste@exemplo.com",
-        titularShirt: "M",
-        totalAttendees: 1,
-        leaders: [],
-        termsAgreed: true
-      })
-    }
-  };
-  Logger.log(doPost(fake).getContent());
-}
-
 /* =============================== VISUAL ================================== */
 
 // Rode pelo editor (Executar > configurarPlanilha). Pode rodar de novo quando quiser.
@@ -434,6 +344,101 @@ function montarPainel_(ss, inscricoes) {
 
   p.setFrozenRows(0);
   return p;
+}
+
+/* ============================== WEBHOOK ================================== */
+
+function doPost(e) {
+  var lock = LockService.getScriptLock();
+  lock.waitLock(20000);
+  try {
+    var data = {};
+    if (e && e.postData && e.postData.contents) {
+      data = JSON.parse(e.postData.contents);
+    } else if (e && e.parameter) {
+      data = e.parameter;
+    }
+
+    // Rodar doPost direto pelo editor (sem dados) não cria linha vazia
+    if (!data.submissionId && !data.company) {
+      return json_({ status: "ignored", message: "sem dados de inscrição" });
+    }
+
+    var sheet = getAba_();
+    var id = String(data.submissionId || "");
+
+    // Evita duplicar a mesma inscrição
+    if (id && jaExiste_(sheet, id)) {
+      return json_({ status: "duplicate", id: id });
+    }
+
+    var leaders = data.leaders || [];
+    var l1 = leaders[0] || {};
+    var l2 = leaders[1] || {};
+
+    var linha = [
+      id,
+      new Date(),
+      data.company || "",
+      data.cityUf || "",
+      data.titularName || "",
+      data.titularPhone || "",
+      data.titularEmail || "",
+      data.titularShirt || "",
+      Number(data.totalAttendees || 1 + leaders.length),
+      l1.name || "", l1.role || "", l1.phone || "", l1.shirt || "",
+      l2.name || "", l2.role || "", l2.phone || "", l2.shirt || "",
+      data.termsAgreed ? "Sim" : "Não",
+      "Nova",
+      ""
+    ];
+
+    sheet.appendRow(linha);
+
+    if (AVISO_EMAIL) {
+      MailApp.sendEmail({
+        to: AVISO_EMAIL,
+        subject: "Planilha: nova inscrição " + id + " — " + (data.company || ""),
+        body: "Nova inscrição registrada na planilha.\n\n" +
+          "ID: " + id + "\nDistribuidora: " + (data.company || "") +
+          "\nTitular: " + (data.titularName || "") +
+          "\nTotal de pessoas: " + (data.totalAttendees || "") +
+          "\n\nPlanilha: " + SpreadsheetApp.getActiveSpreadsheet().getUrl()
+      });
+    }
+
+    return json_({ status: "success", id: id });
+  } catch (err) {
+    return json_({ status: "error", message: String(err) });
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+// Abrir a URL /exec no navegador mostra se o webhook está no ar
+function doGet() {
+  return json_({ status: "online", service: "Sinapse Experience 2026 — inscrições", time: new Date().toISOString() });
+}
+
+// Rode esta função uma vez pelo editor para testar (cria uma linha de TESTE)
+function testarInscricao() {
+  var fake = {
+    postData: {
+      contents: JSON.stringify({
+        submissionId: "SX-TESTE1",
+        company: "TESTE — pode apagar esta linha",
+        cityUf: "São Paulo / SP",
+        titularName: "Teste",
+        titularPhone: "(11) 90000-0000",
+        titularEmail: "teste@exemplo.com",
+        titularShirt: "M",
+        totalAttendees: 1,
+        leaders: [],
+        termsAgreed: true
+      })
+    }
+  };
+  Logger.log(doPost(fake).getContent());
 }
 
 /* ============================== AUXILIARES =============================== */
