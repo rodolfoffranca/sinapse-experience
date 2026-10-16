@@ -26,8 +26,12 @@ const EVENT_CONFIG = {
   // Na 1ª inscrição o FormSubmit manda um e-mail de ATIVAÇÃO para esse endereço — é só clicar em "Activate Form".
   notifyEmail: "alexia.rodrigues@sinapseimport.com",
 
-  // Planilha Google (Apps Script) — mantida como backup das inscrições
-  googleSheetsWebhookUrl: "https://script.google.com/macros/s/AKfycbxl_kxi9TAlIFsISujuA0C753Wr7QIVXdPVEWE93Vi4GkkE7EXexmO2KJj48C8gqrvO/exec",
+  // Planilhas Google (Apps Script). Cada inscrição é enviada para TODAS as URLs da lista.
+  // 1) planilha antiga (já existente)  2) planilha "Inscrições — Sinapse Experience 2026" (cole a URL /exec abaixo)
+  googleSheetsWebhooks: [
+    "https://script.google.com/macros/s/AKfycbxl_kxi9TAlIFsISujuA0C753Wr7QIVXdPVEWE93Vi4GkkE7EXexmO2KJj48C8gqrvO/exec",
+    "" // ← URL do App da Web da planilha nova
+  ],
 
   maxLeaders: 2,
   leaderRoles: ["Líder Comercial", "Líder Financeiro"]
@@ -277,7 +281,7 @@ async function sendEmail(p) {
     leaderFields[`Líder ${i + 1}`] = `${l.name} · ${l.role} · ${l.phone} · Camisa ${l.shirt}`;
   });
   const body = {
-    _subject: `Nova inscrição Sinapse Experience — ${p.company} (${p.totalAttendees} pessoa${p.totalAttendees > 1 ? "s" : ""})`,
+    _subject: `Nova inscrição Sinapse Experience — ${p.company} (${p.totalAttendees} pessoa${p.totalAttendees > 1 ? "s" : ""}) · ${p.submissionId}`,
     _template: "table",
     _captcha: "false",
     _replyto: p.titularEmail,
@@ -290,7 +294,8 @@ async function sendEmail(p) {
     "Total de pessoas": `${p.totalAttendees} (titular + ${p.leadersCount} líder${p.leadersCount === 1 ? "" : "es"})`,
     ...leaderFields,
     "Ciente de chegada 10/12 e traje": "Sim",
-    "Data da inscrição": p.timestampFormatted
+    "Data da inscrição": p.timestampFormatted,
+    "ID da inscrição": p.submissionId
   };
   const ctrl = new AbortController();
   const t = setTimeout(() => ctrl.abort(), 12000);
@@ -309,18 +314,31 @@ async function sendEmail(p) {
 }
 
 async function sendSheets(p) {
-  if (!EVENT_CONFIG.googleSheetsWebhookUrl) return false;
-  try {
-    await fetch(EVENT_CONFIG.googleSheetsWebhookUrl, {
-      method: "POST", mode: "no-cors", keepalive: true,
-      headers: { "Content-Type": "text/plain;charset=utf-8" },
-      body: JSON.stringify(p)
-    });
-    return true;
-  } catch (e) {
-    console.warn("Sheets:", e);
-    return false;
-  }
+  const urls = (EVENT_CONFIG.googleSheetsWebhooks || []).map((u) => (u || "").trim()).filter(Boolean);
+  if (!urls.length) return false;
+  const results = await Promise.all(urls.map(async (url) => {
+    try {
+      await fetch(url, {
+        method: "POST", mode: "no-cors", keepalive: true,
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify(p)
+      });
+      return true;
+    } catch (e) {
+      console.warn("Sheets:", url, e);
+      return false;
+    }
+  }));
+  return results.some(Boolean);
+}
+
+// ID curto para cruzar e-mail × planilha (ex.: SX-K3F9Q2)
+function makeSubmissionId() {
+  const abc = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  let id = "";
+  const rnd = (window.crypto && crypto.getRandomValues) ? crypto.getRandomValues(new Uint8Array(6)) : Array.from({ length: 6 }, () => Math.floor(Math.random() * 256));
+  for (let i = 0; i < 6; i++) id += abc[rnd[i] % abc.length];
+  return "SX-" + id;
 }
 
 function initForm() {
@@ -359,6 +377,8 @@ function initForm() {
 
     const now = new Date();
     const p = {
+      submissionId: makeSubmissionId(),
+      source: location.href.split("#")[0],
       timestamp: now.toISOString(),
       timestampFormatted: now.toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" }),
       company: $("#company-name").value.trim(),
@@ -396,6 +416,7 @@ let lastFocus = null;
 function openModal(p) {
   const modal = $("#success-modal");
   const rows = [
+    ["Protocolo", p.submissionId],
     ["Distribuidora", p.company],
     ["Cidade / UF", p.cityUf],
     ["Titular", p.titularName],
@@ -413,7 +434,7 @@ function openModal(p) {
   $("#modal-whats").href = `https://wa.me/${EVENT_CONFIG.conciergePhone}?text=${msg}`;
 
   const details = encodeURIComponent(
-    `Sinapse Experience 2026\n- 08h–18h: Imersão executiva (${EVENT_CONFIG.venueName})\n- 20h–23h: Noite de Celebração${EVENT_CONFIG.dinner.name ? " (" + EVENT_CONFIG.dinner.name + ")" : ""} · traje passeio completo\n\nInscrição: ${p.company} — ${p.titularName} + ${p.leadersCount} líder(es).`
+    `Sinapse Experience 2026\n- 08h–08h45: Credenciamento e café\n- 09h–18h: Imersão executiva (${EVENT_CONFIG.venueName})\n- 20h–23h: Noite de Celebração${EVENT_CONFIG.dinner.name ? " (" + EVENT_CONFIG.dinner.name + ")" : ""} · traje passeio completo\n\nInscrição: ${p.company} — ${p.titularName} + ${p.leadersCount} líder(es).`
   );
   $("#modal-gcal").href = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent("Sinapse Experience 2026")}&dates=20261211T110000Z/20261212T020000Z&details=${details}&location=${encodeURIComponent(EVENT_CONFIG.venueAddress)}`;
   $("#modal-ics").onclick = () => downloadIcs(p);
@@ -440,7 +461,7 @@ function downloadIcs(p) {
     "DTSTAMP:" + new Date().toISOString().replace(/[-:]/g, "").split(".")[0] + "Z",
     "DTSTART:20261211T110000Z", "DTEND:20261212T020000Z",
     "SUMMARY:Sinapse Experience 2026",
-    `DESCRIPTION:08h–18h Imersão executiva\\n20h–23h Noite de Celebração (traje passeio completo)\\n\\nInscrição: ${p.company} — ${p.titularName}`,
+    `DESCRIPTION:08h–08h45 Credenciamento e café\\n09h–18h Imersão executiva\\n20h–23h Noite de Celebração (traje passeio completo)\\n\\nInscrição: ${p.company} — ${p.titularName}`,
     `LOCATION:${EVENT_CONFIG.venueAddress.replace(/,/g, "\\,")}`,
     "STATUS:CONFIRMED", "END:VEVENT", "END:VCALENDAR"
   ].join("\r\n");
