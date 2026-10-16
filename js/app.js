@@ -30,7 +30,7 @@ const EVENT_CONFIG = {
   // 1) planilha antiga (já existente)  2) planilha "Inscrições — Sinapse Experience 2026" (cole a URL /exec abaixo)
   googleSheetsWebhooks: [
     "https://script.google.com/macros/s/AKfycbxl_kxi9TAlIFsISujuA0C753Wr7QIVXdPVEWE93Vi4GkkE7EXexmO2KJj48C8gqrvO/exec",
-    "" // ← URL do App da Web da planilha nova
+    "https://script.google.com/macros/s/AKfycbzQd_LPq4Zak0eeJ1VBC_qIivEx1mzq8f_uKSKEFkuOINUBqpk3p3kAaLlvN3dqB_1iVQ/exec" // planilha "Inscrições — Sinapse Experience 2026"
   ],
 
   maxLeaders: 2,
