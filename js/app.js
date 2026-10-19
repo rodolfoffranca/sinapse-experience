@@ -12,11 +12,11 @@ const EVENT_CONFIG = {
   venueName: "Ideal Hub — Edifício Corporate Plaza",
   venueAddress: "Rua Alexandre Dumas, 2100 - 14º andar — Chácara Santo Antônio, São Paulo - SP",
 
-  // Noite de Celebração — no mesmo local da imersão (usado no convite de agenda)
+  // Noite de Celebração — Panvino Brooklin (usado no convite de agenda)
   dinner: {
-    name: "Ideal Hub — mesmo local da imersão",
-    address: "",
-    mapsQuery: ""
+    name: "Panvino Brooklin",
+    address: "Rua Roque Petrella, 235 - Brooklin, São Paulo - SP",
+    mapsQuery: "Panvino Brooklin, Rua Roque Petrella, 235 - Brooklin, São Paulo - SP"
   },
 
   // Concierge (WhatsApp)

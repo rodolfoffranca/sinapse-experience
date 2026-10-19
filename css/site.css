@@ -477,6 +477,8 @@ html:not(.js-motion) .dn__cap { background: var(--night); }
 .venue--night .venue__k { color: var(--warm); }
 .venue--night .venue__addr, .venue--night .venue__meta { color: rgba(255,255,255,.7); border-color: var(--line-l); }
 .venue--night .venue__meta strong { color: #fff; }
+.venue--night .btn--outline { color: #fff; border-color: var(--line-l); }
+@media (hover: hover) { .venue--night .btn--outline:hover { border-color: rgba(255,255,255,.4); } }
 .venue--night[data-pending] .venue__title::after { content: ""; display: inline-block; width: 8px; height: 8px; margin-left: 10px; border-radius: 50%; background: var(--warm); vertical-align: middle; animation: pulse 2.4s ease-in-out infinite; }
 @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .3; } }
 .hotels { border-radius: var(--r-lg); background: var(--surface); padding: 24px 26px 14px; color: var(--ink); }
