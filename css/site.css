@@ -481,6 +481,31 @@ html:not(.js-motion) .dn__cap { background: var(--night); }
 @media (hover: hover) { .venue--night .btn--outline:hover { border-color: rgba(255,255,255,.4); } }
 .venue--night[data-pending] .venue__title::after { content: ""; display: inline-block; width: 8px; height: 8px; margin-left: 10px; border-radius: 50%; background: var(--warm); vertical-align: middle; animation: pulse 2.4s ease-in-out infinite; }
 @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .3; } }
+
+/* Galeria do Panvino (Noite de Celebração) */
+.nightgal { margin-top: clamp(56px, 8vw, 96px); color: #fff; scroll-margin-top: 96px; }
+.nightgal__head { display: grid; gap: 12px; max-width: 720px; margin-bottom: clamp(24px, 3.5vw, 36px); }
+.nightgal__k { font-size: 12.5px; letter-spacing: .06em; text-transform: uppercase; color: var(--warm); font-weight: 500; }
+.nightgal__title { font-family: var(--display); font-size: clamp(1.9rem, 4vw, 3.1rem); letter-spacing: -.035em; line-height: 1.04; text-wrap: balance; }
+.nightgal__title .mute { color: rgba(255,255,255,.5); }
+.nightgal__sub { color: rgba(255,255,255,.72); font-size: 16px; max-width: 54ch; text-wrap: pretty; }
+.nightgal__grid { display: grid; gap: 12px; }
+.nightgal__item { position: relative; margin: 0; border-radius: var(--r-lg); overflow: hidden; background: rgba(255,255,255,.04); isolation: isolate; }
+.nightgal__item img { width: 100%; height: 100%; object-fit: cover; display: block; transform: scale(1.001); transition: transform 900ms var(--ease-out); }
+.nightgal__item::after { content: ""; position: absolute; inset: auto 0 0 0; height: 45%; background: linear-gradient(180deg, transparent, rgba(6,10,30,.62)); pointer-events: none; }
+.nightgal__item figcaption { position: absolute; left: 16px; bottom: 14px; z-index: 1; font-size: 13px; font-weight: 500; letter-spacing: .01em; padding: 6px 12px; border-radius: 999px; background: rgba(10,17,48,.45); border: 1px solid rgba(255,255,255,.18); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
+@media (hover: hover) { .nightgal__item:hover img { transform: scale(1.04); } }
+.nightgal__item--c img { object-position: 50% 35%; }
+.nightgal__credit { margin-top: 14px; font-size: 12.5px; color: rgba(255,255,255,.45); }
+@media (max-width: 759px) {
+  .nightgal__grid { grid-auto-flow: column; grid-auto-columns: 84%; overflow-x: auto; scroll-snap-type: x mandatory; margin: 0 calc(var(--gut) * -1); padding: 0 var(--gut) 6px; scrollbar-width: none; overscroll-behavior-x: contain; }
+  .nightgal__grid::-webkit-scrollbar { display: none; }
+  .nightgal__item { aspect-ratio: 4 / 5; scroll-snap-align: center; }
+}
+@media (min-width: 760px) {
+  .nightgal__grid { grid-template-columns: 1.5fr 1fr 1fr; grid-template-rows: repeat(2, clamp(200px, 22vw, 300px)); grid-template-areas: "a b c" "a d e"; }
+  .nightgal__item--a { grid-area: a; } .nightgal__item--b { grid-area: b; } .nightgal__item--c { grid-area: c; } .nightgal__item--d { grid-area: d; } .nightgal__item--e { grid-area: e; }
+}
 .hotels { border-radius: var(--r-lg); background: var(--surface); padding: 24px 26px 14px; color: var(--ink); }
 .hotels__head { display: grid; gap: 4px; margin-bottom: 8px; }
 .hotels__title { font-family: var(--display); font-size: 1.5rem; letter-spacing: -.03em; }
