@@ -30,7 +30,12 @@ const EVENT_CONFIG = {
   // 1) planilha antiga (já existente)  2) planilha "Inscrições — Sinapse Experience 2026" (cole a URL /exec abaixo)
   googleSheetsWebhooks: [
     "https://script.google.com/macros/s/AKfycbxl_kxi9TAlIFsISujuA0C753Wr7QIVXdPVEWE93Vi4GkkE7EXexmO2KJj48C8gqrvO/exec",
-    "https://script.google.com/macros/s/AKfycbzQd_LPq4Zak0eeJ1VBC_qIivEx1mzq8f_uKSKEFkuOINUBqpk3p3kAaLlvN3dqB_1iVQ/exec" // planilha "Inscrições — Sinapse Experience 2026"
+    "https://script.google.com/macros/s/AKfycbx6EKDTxWXnmAqKiNj1UrFndT5TveSmTsx9Dk9XJ6x4_6SlXlM0hbmLyWoZG1-0Sv0DoA/exec" // planilha "Inscrições — Sinapse Experience 2026"
+  ],
+  // Planilhas que têm colunas próprias de crachá (recebem o nome limpo).
+  // As demais recebem o crachá junto do nome ("Nome · crachá: Apelido").
+  sheetsWithBadgeColumns: [
+    "https://script.google.com/macros/s/AKfycbx6EKDTxWXnmAqKiNj1UrFndT5TveSmTsx9Dk9XJ6x4_6SlXlM0hbmLyWoZG1-0Sv0DoA/exec"
   ],
 
   maxLeaders: 2,
@@ -328,7 +333,7 @@ async function sendSheets(p) {
       await fetch(url, {
         method: "POST", mode: "no-cors", keepalive: true,
         headers: { "Content-Type": "text/plain;charset=utf-8" },
-        body: JSON.stringify(sheetPayload(p))
+        body: JSON.stringify((EVENT_CONFIG.sheetsWithBadgeColumns || []).includes(url) ? p : sheetPayload(p))
       });
       return true;
     } catch (e) {
@@ -339,9 +344,9 @@ async function sendSheets(p) {
   return results.some(Boolean);
 }
 
-// A planilha não tem coluna própria de crachá: o nome do crachá vai junto do nome
+// Para planilhas sem coluna própria de crachá: o nome do crachá vai junto do nome
 // (ex.: "Carlos Eduardo de Oliveira · crachá: Carlos Oliveira"). Os campos separados
-// (titularBadge / leaders[].badge) também seguem, para uma futura coluna dedicada.
+// (titularBadge / leaders[].badge) também seguem.
 function sheetPayload(p) {
   const withBadge = (name, badge) => (badge ? `${name} · crachá: ${badge}` : name);
   return {
