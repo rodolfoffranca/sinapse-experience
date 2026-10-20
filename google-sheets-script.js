@@ -9,31 +9,47 @@
  * 2. Apague o conteúdo do arquivo Código.gs e cole este arquivo inteiro. Salve.
  * 3. Implantar > Nova implantação > tipo "App da Web".
  *      Executar como: Eu  |  Quem pode acessar: Qualquer pessoa
+ *    (para atualizar sem trocar a URL: Implantar > Gerenciar implantações >
+ *     lápis > Versão: "Nova versão" > Implantar)
  * 4. Autorize o acesso com a conta Google dona da planilha.
  * 5. Copie a "URL do app da Web" (termina com /exec) e coloque em
  *    js/app.js > EVENT_CONFIG.googleSheetsWebhooks.
- * 6. (Uma vez) Rode a função configurarPlanilha: formata o cabeçalho, cria a
- *    lista de Status e a aba "Resumo" com os totais e as camisas por tamanho.
  *
  * O que este script faz:
  * - Grava cada inscrição como uma linha na aba "Inscrições".
+ * - Escreve cada valor na coluna pelo NOME do cabeçalho. Por isso a ordem das
+ *   colunas pode mudar na planilha sem quebrar a integração.
+ * - Cria sozinho as colunas de crachá ("Crachá do titular", "Líder 1 — Crachá",
+ *   "Líder 2 — Crachá") ao lado dos nomes, se ainda não existirem.
  * - Usa o "ID da inscrição" (ex.: SX-K3F9Q2) — o mesmo que vai no assunto do
  *   e-mail — para cruzar planilha × e-mail (dupla verificação).
  * - Ignora envios repetidos com o mesmo ID.
  * - (Opcional) manda um e-mail de aviso a cada inscrição: preencha AVISO_EMAIL.
+ *
+ * Ações de manutenção (POST com {"acao": "..."}; não criam inscrição):
+ * - "configurar"   → só cria as colunas que faltarem.
+ * - "limparTestes" → apaga linhas cujo ID começa com "SX-TESTE".
  * ============================================================================
  */
 
 var ABA = "Inscrições";
 var AVISO_EMAIL = ""; // opcional: ex. "alexia.rodrigues@sinapseimport.com" — deixe vazio para não enviar
 
+// Ordem usada quando a planilha está vazia
 var CABECALHO = [
   "ID da inscrição", "Data / hora", "Distribuidora", "Cidade / UF",
-  "Titular (dono/sócio)", "WhatsApp do titular", "E-mail", "Camisa do titular",
+  "Titular (dono/sócio)", "Crachá do titular", "WhatsApp do titular", "E-mail", "Camisa do titular",
   "Total de pessoas",
-  "Líder 1 — Nome", "Líder 1 — Área", "Líder 1 — WhatsApp", "Líder 1 — Camisa",
-  "Líder 2 — Nome", "Líder 2 — Área", "Líder 2 — WhatsApp", "Líder 2 — Camisa",
+  "Líder 1 — Nome", "Líder 1 — Crachá", "Líder 1 — Área", "Líder 1 — WhatsApp", "Líder 1 — Camisa",
+  "Líder 2 — Nome", "Líder 2 — Crachá", "Líder 2 — Área", "Líder 2 — WhatsApp", "Líder 2 — Camisa",
   "Ciente da chegada 10/12 e do traje", "Status", "Observações"
+];
+
+// Colunas de crachá: [nome da coluna, coluna que ela deve seguir]
+var COLUNAS_CRACHA = [
+  ["Crachá do titular", "Titular (dono/sócio)"],
+  ["Líder 1 — Crachá", "Líder 1 — Nome"],
+  ["Líder 2 — Crachá", "Líder 2 — Nome"]
 ];
 
 function doPost(e) {
@@ -48,6 +64,20 @@ function doPost(e) {
     }
 
     var sheet = getAba_();
+    garantirColunasCracha_(sheet);
+
+    if (data.acao === "configurar") {
+      return json_({ status: "ok", acao: "configurar", colunas: cabecalho_(sheet) });
+    }
+    if (data.acao === "limparTestes") {
+      return json_({ status: "ok", acao: "limparTestes", apagadas: limparTestes_(sheet) });
+    }
+
+    // Rodar doPost direto pelo editor (sem dados) não cria linha vazia
+    if (!data.submissionId && !data.company) {
+      return json_({ status: "ignored", message: "sem dados de inscrição" });
+    }
+
     var id = String(data.submissionId || "");
 
     // Evita duplicar a mesma inscrição
@@ -59,22 +89,41 @@ function doPost(e) {
     var l1 = leaders[0] || {};
     var l2 = leaders[1] || {};
 
-    var linha = [
-      id,
-      new Date(),
-      data.company || "",
-      data.cityUf || "",
-      data.titularName || "",
-      data.titularPhone || "",
-      data.titularEmail || "",
-      data.titularShirt || "",
-      Number(data.totalAttendees || 1 + leaders.length),
-      l1.name || "", l1.role || "", l1.phone || "", l1.shirt || "",
-      l2.name || "", l2.role || "", l2.phone || "", l2.shirt || "",
-      data.termsAgreed ? "Sim" : "Não",
-      "Nova",
-      ""
-    ];
+    var valores = {
+      "ID da inscrição": id,
+      "Data / hora": new Date(),
+      "Distribuidora": data.company || "",
+      "Cidade / UF": data.cityUf || "",
+      "Titular (dono/sócio)": data.titularName || "",
+      "Crachá do titular": data.titularBadge || "",
+      "WhatsApp do titular": data.titularPhone || "",
+      "E-mail": data.titularEmail || "",
+      "Camisa do titular": data.titularShirt || "",
+      "Total de pessoas": Number(data.totalAttendees || 1 + leaders.length),
+      "Líder 1 — Nome": l1.name || "",
+      "Líder 1 — Crachá": l1.badge || "",
+      "Líder 1 — Área": l1.role || "",
+      "Líder 1 — WhatsApp": l1.phone || "",
+      "Líder 1 — Camisa": l1.shirt || "",
+      "Líder 2 — Nome": l2.name || "",
+      "Líder 2 — Crachá": l2.badge || "",
+      "Líder 2 — Área": l2.role || "",
+      "Líder 2 — WhatsApp": l2.phone || "",
+      "Líder 2 — Camisa": l2.shirt || "",
+      "Ciente da chegada 10/12 e do traje": data.termsAgreed ? "Sim" : "Não",
+      "Status": "Nova",
+      "Observações": ""
+    };
+
+    // Monta a linha na ordem dos cabeçalhos da planilha
+    var cab = cabecalho_(sheet);
+    Object.keys(valores).forEach(function (k) {
+      if (cab.indexOf(k) === -1) {
+        cab.push(k);
+        sheet.getRange(1, cab.length).setValue(k);
+      }
+    });
+    var linha = cab.map(function (h) { return valores.hasOwnProperty(h) ? valores[h] : ""; });
 
     sheet.appendRow(linha);
 
@@ -103,7 +152,7 @@ function doGet() {
   return json_({ status: "online", service: "Sinapse Experience 2026 — inscrições", time: new Date().toISOString() });
 }
 
-// Rode esta função uma vez pelo editor para testar (cria uma linha de TESTE)
+// Rode esta função pelo editor para testar (cria uma linha de TESTE)
 function testarInscricao() {
   var fake = {
     postData: {
@@ -111,7 +160,8 @@ function testarInscricao() {
         submissionId: "SX-TESTE1",
         company: "TESTE — pode apagar esta linha",
         cityUf: "São Paulo / SP",
-        titularName: "Teste",
+        titularName: "Teste da Silva",
+        titularBadge: "Teste",
         titularPhone: "(11) 90000-0000",
         titularEmail: "teste@exemplo.com",
         titularShirt: "M",
@@ -122,6 +172,11 @@ function testarInscricao() {
     }
   };
   Logger.log(doPost(fake).getContent());
+}
+
+// Rode pelo editor para criar as colunas de crachá sem esperar uma inscrição
+function configurarColunas() {
+  garantirColunasCracha_(getAba_());
 }
 
 function getAba_() {
@@ -141,62 +196,41 @@ function getAba_() {
   return sheet;
 }
 
-// Rode UMA VEZ pelo editor (Executar > configurarPlanilha)
-function configurarPlanilha() {
-  var ss = SpreadsheetApp.getActiveSpreadsheet();
-  var sheet = getAba_();
-  var n = CABECALHO.length;
+function cabecalho_(sheet) {
+  var n = sheet.getLastColumn();
+  if (n < 1) return [];
+  var cab = sheet.getRange(1, 1, 1, n).getValues()[0].map(function (v) { return String(v).trim(); });
+  while (cab.length && cab[cab.length - 1] === "") cab.pop();
+  return cab;
+}
 
-  // Cabeçalho
-  sheet.getRange(1, 1, 1, n).setValues([CABECALHO])
-    .setBackground("#172259").setFontColor("#FFFFFF").setFontWeight("bold")
-    .setVerticalAlignment("middle").setWrap(true);
-  sheet.setFrozenRows(1);
-  sheet.setFrozenColumns(1);
-  sheet.setRowHeight(1, 40);
-  var larguras = [110, 130, 220, 150, 220, 140, 230, 80, 80, 200, 140, 140, 80, 200, 140, 140, 80, 120, 120, 260];
-  larguras.forEach(function (w, i) { sheet.setColumnWidth(i + 1, w); });
-
-  // Formatos
-  sheet.getRange("B2:B").setNumberFormat("dd/mm/yyyy hh:mm");
-  sheet.getRange("F2:F").setNumberFormat("@");
-  sheet.getRange("L2:L").setNumberFormat("@");
-  sheet.getRange("P2:P").setNumberFormat("@");
-
-  // Lista de Status
-  var regra = SpreadsheetApp.newDataValidation()
-    .requireValueInList(["Nova", "Confirmada", "Contato feito", "Cancelada"], true)
-    .setAllowInvalid(false).build();
-  sheet.getRange("S2:S").setDataValidation(regra);
-
-  // Aba Resumo
-  var r = ss.getSheetByName("Resumo") || ss.insertSheet("Resumo");
-  r.clear();
-  var I = "'" + ABA + "'!";
-  var linhas = [
-    ["Resumo das inscrições", ""],
-    ["Distribuidoras inscritas", "=COUNTA(" + I + "A2:A)"],
-    ["Total de pessoas", "=SUM(" + I + "I2:I)"],
-    ["Titulares", "=COUNTA(" + I + "E2:E)"],
-    ["Líderes", "=COUNTA(" + I + "J2:J)+COUNTA(" + I + "N2:N)"],
-    ["Líderes comerciais", "=COUNTIF(" + I + "K2:K,\"Líder Comercial\")+COUNTIF(" + I + "O2:O,\"Líder Comercial\")"],
-    ["Líderes financeiros", "=COUNTIF(" + I + "K2:K,\"Líder Financeiro\")+COUNTIF(" + I + "O2:O,\"Líder Financeiro\")"],
-    ["", ""],
-    ["Camisas (kit oficial)", ""]
-  ];
-  ["P", "M", "G", "GG", "XG"].forEach(function (t) {
-    linhas.push(["Tamanho " + t, "=COUNTIF(" + I + "H2:H,\"" + t + "\")+COUNTIF(" + I + "M2:M,\"" + t + "\")+COUNTIF(" + I + "Q2:Q,\"" + t + "\")"]);
+// Insere cada coluna de crachá logo depois da coluna do nome correspondente
+// (a coluna nova herda o visual da coluna do nome: cabeçalho, faixas e largura)
+function garantirColunasCracha_(sheet) {
+  COLUNAS_CRACHA.forEach(function (par) {
+    var cab = cabecalho_(sheet);
+    if (cab.indexOf(par[0]) !== -1) return;
+    var depois = cab.indexOf(par[1]);
+    if (depois === -1) return; // sem a coluna do nome: o doPost cria no fim
+    var col = depois + 1; // posição (1-based) da coluna do nome
+    sheet.insertColumnAfter(col);
+    sheet.getRange(1, col + 1).setValue(par[0]);
+    sheet.setColumnWidth(col + 1, sheet.getColumnWidth(col));
   });
-  linhas.push(["", ""], ["Status", ""]);
-  ["Nova", "Confirmada", "Contato feito", "Cancelada"].forEach(function (st) {
-    linhas.push([st, "=COUNTIF(" + I + "S2:S,\"" + st + "\")"]);
-  });
-  r.getRange(1, 1, linhas.length, 2).setValues(linhas);
-  r.setColumnWidth(1, 240); r.setColumnWidth(2, 110);
-  r.getRange("A1").setFontSize(14).setFontWeight("bold").setFontColor("#172259");
-  ["A9", "A17"].forEach(function (a) { r.getRange(a).setFontWeight("bold").setFontColor("#172259"); });
-  r.getRange("B2:B").setFontWeight("bold");
-  ss.setActiveSheet(sheet);
+}
+
+function limparTestes_(sheet) {
+  var last = sheet.getLastRow();
+  if (last < 2) return 0;
+  var ids = sheet.getRange(2, 1, last - 1, 1).getValues();
+  var apagadas = 0;
+  for (var i = ids.length - 1; i >= 0; i--) {
+    if (String(ids[i][0]).indexOf("SX-TESTE") === 0) {
+      sheet.deleteRow(i + 2);
+      apagadas++;
+    }
+  }
+  return apagadas;
 }
 
 function jaExiste_(sheet, id) {
