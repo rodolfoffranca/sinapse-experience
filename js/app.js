@@ -172,9 +172,14 @@ function renderLeaders() {
           <button type="button" class="leader__remove" data-remove="${i}" aria-label="Remover líder ${i + 1}">Remover</button>
         </div>
         <div class="grid-2">
-          <div class="field">
+          <div class="field field--full">
             <label for="l${i}-name">Nome completo</label>
             <input id="l${i}-name" type="text" data-f="name" value="${esc(l.name)}" autocomplete="off" autocapitalize="words" placeholder="Nome do líder">
+            <p class="field__err" aria-live="polite"></p>
+          </div>
+          <div class="field">
+            <label for="l${i}-badge">Nome no crachá</label>
+            <input id="l${i}-badge" type="text" data-f="badge" value="${esc(l.badge || "")}" autocomplete="off" autocapitalize="words" maxlength="28" placeholder="Como quer ser chamado">
             <p class="field__err" aria-live="polite"></p>
           </div>
           <div class="field">
@@ -242,6 +247,7 @@ function validate() {
     ["#company-name", "Informe o nome da distribuidora."],
     ["#company-city", "Informe cidade e UF."],
     ["#titular-name", "Informe o nome do titular."],
+    ["#titular-badge", "Informe como o nome deve sair no crachá."],
     ["#titular-phone", "Informe um WhatsApp válido."],
     ["#titular-email", "Informe um e-mail válido."],
     ["#titular-shirt", "Selecione o tamanho da camisa."]
@@ -278,7 +284,7 @@ function validate() {
 async function sendEmail(p) {
   const leaderFields = {};
   p.leaders.forEach((l, i) => {
-    leaderFields[`Líder ${i + 1}`] = `${l.name} · ${l.role} · ${l.phone} · Camisa ${l.shirt}`;
+    leaderFields[`Líder ${i + 1}`] = `${l.name} · Crachá: ${l.badge} · ${l.role} · ${l.phone} · Camisa ${l.shirt}`;
   });
   const body = {
     _subject: `Nova inscrição Sinapse Experience — ${p.company} (${p.totalAttendees} pessoa${p.totalAttendees > 1 ? "s" : ""}) · ${p.submissionId}`,
@@ -288,6 +294,7 @@ async function sendEmail(p) {
     "Distribuidora": p.company,
     "Cidade / UF": p.cityUf,
     "Titular": p.titularName,
+    "Crachá do titular": p.titularBadge,
     "WhatsApp do titular": p.titularPhone,
     "E-mail": p.titularEmail,
     "Camisa do titular": p.titularShirt,
@@ -321,7 +328,7 @@ async function sendSheets(p) {
       await fetch(url, {
         method: "POST", mode: "no-cors", keepalive: true,
         headers: { "Content-Type": "text/plain;charset=utf-8" },
-        body: JSON.stringify(p)
+        body: JSON.stringify(sheetPayload(p))
       });
       return true;
     } catch (e) {
@@ -330,6 +337,18 @@ async function sendSheets(p) {
     }
   }));
   return results.some(Boolean);
+}
+
+// A planilha não tem coluna própria de crachá: o nome do crachá vai junto do nome
+// (ex.: "Carlos Eduardo de Oliveira · crachá: Carlos Oliveira"). Os campos separados
+// (titularBadge / leaders[].badge) também seguem, para uma futura coluna dedicada.
+function sheetPayload(p) {
+  const withBadge = (name, badge) => (badge ? `${name} · crachá: ${badge}` : name);
+  return {
+    ...p,
+    titularName: withBadge(p.titularName, p.titularBadge),
+    leaders: p.leaders.map((l) => ({ ...l, name: withBadge(l.name, l.badge) }))
+  };
 }
 
 // ID curto para cruzar e-mail × planilha (ex.: SX-K3F9Q2)
@@ -354,7 +373,7 @@ function initForm() {
     if (leaders.length >= EVENT_CONFIG.maxLeaders) return;
     const used = leaders.map((l) => l.role);
     const suggested = EVENT_CONFIG.leaderRoles.find((r) => !used.includes(r)) || "";
-    leaders.push({ name: "", role: suggested, phone: "", shirt: "" });
+    leaders.push({ name: "", badge: "", role: suggested, phone: "", shirt: "" });
     renderLeaders();
     const last = $$(".leader").pop();
     if (last) $("input", last).focus();
@@ -384,10 +403,11 @@ function initForm() {
       company: $("#company-name").value.trim(),
       cityUf: $("#company-city").value.trim(),
       titularName: $("#titular-name").value.trim(),
+      titularBadge: $("#titular-badge").value.trim(),
       titularPhone: $("#titular-phone").value.trim(),
       titularEmail: $("#titular-email").value.trim(),
       titularShirt: $("#titular-shirt").value,
-      leaders: leaders.map((l) => ({ ...l, name: l.name.trim() })),
+      leaders: leaders.map((l) => ({ ...l, name: l.name.trim(), badge: (l.badge || "").trim() })),
       leadersCount: leaders.length,
       totalAttendees: 1 + leaders.length,
       termsAgreed: true
@@ -419,8 +439,8 @@ function openModal(p) {
     ["Protocolo", p.submissionId],
     ["Distribuidora", p.company],
     ["Cidade / UF", p.cityUf],
-    ["Titular", p.titularName],
-    ...p.leaders.map((l, i) => [`Líder ${i + 1}`, `${l.name} · ${l.role}`]),
+    ["Titular", `${p.titularName} · crachá: ${p.titularBadge}`],
+    ...p.leaders.map((l, i) => [`Líder ${i + 1}`, `${l.name} · crachá: ${l.badge} · ${l.role}`]),
     ["Total", `${p.totalAttendees} pessoa${p.totalAttendees > 1 ? "s" : ""}`]
   ];
   $("#modal-summary").innerHTML = rows.map(([k, v]) => `<div class="row"><span>${esc(k)}</span><strong>${esc(v)}</strong></div>`).join("");

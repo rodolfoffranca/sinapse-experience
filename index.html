@@ -34,7 +34,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@200..600&family=Geist:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="preload" as="image" href="assets/img/v3/hero-poster.jpg">
-  <link rel="stylesheet" href="css/site.css?v=20261019b">
+  <link rel="stylesheet" href="css/site.css?v=20261020a">
   <script>if(!matchMedia('(prefers-reduced-motion: reduce)').matches)document.documentElement.classList.add('js-motion')</script>
 
   <script type="application/ld+json">
@@ -529,7 +529,7 @@
           <header class="nightgal__head" data-reveal>
             <p class="nightgal__k">Noite de Celebração · 20h–23h</p>
             <h3 class="nightgal__title" id="nightgal-title">Panvino Brooklin, <span class="mute">onde a noite acontece.</span></h3>
-            <p class="nightgal__sub">Pergolado de vidro, jardim vertical e um bar à altura do brinde. Um espaço reservado para a nossa rede.</p>
+            <p class="nightgal__sub">Jardim vertical, teto de vidro e um bar à altura do brinde. Um espaço reservado para a nossa rede.</p>
           </header>
           <div class="nightgal__grid" data-reveal>
             <figure class="nightgal__item nightgal__item--a">
@@ -539,14 +539,6 @@
             <figure class="nightgal__item nightgal__item--b">
               <img src="assets/img/panvino/panvino-salao.webp" srcset="assets/img/panvino/panvino-salao-sm.webp 640w, assets/img/panvino/panvino-salao.webp 1200w" sizes="(max-width: 760px) 86vw, 25vw" alt="Salão do Panvino com mesas de madeira, jardim vertical e teto de vidro" width="1200" height="800" loading="lazy" decoding="async">
               <figcaption>O salão</figcaption>
-            </figure>
-            <figure class="nightgal__item nightgal__item--c">
-              <img src="assets/img/panvino/panvino-pergolado.webp" srcset="assets/img/panvino/panvino-pergolado-sm.webp 520w, assets/img/panvino/panvino-pergolado.webp 900w" sizes="(max-width: 760px) 86vw, 25vw" alt="Pergolado de vidro do Panvino com luminárias pendentes e plantas" width="900" height="1349" loading="lazy" decoding="async">
-              <figcaption>O pergolado</figcaption>
-            </figure>
-            <figure class="nightgal__item nightgal__item--d">
-              <img src="assets/img/panvino/panvino-evento.webp" srcset="assets/img/panvino/panvino-evento-sm.webp 640w, assets/img/panvino/panvino-evento.webp 1200w" sizes="(max-width: 760px) 86vw, 25vw" alt="Evento corporativo no Panvino Brooklin com o salão lotado" width="1200" height="801" loading="lazy" decoding="async">
-              <figcaption>Eventos corporativos</figcaption>
             </figure>
             <figure class="nightgal__item nightgal__item--e">
               <img src="assets/img/panvino/panvino-vinho.webp" srcset="assets/img/panvino/panvino-vinho-sm.webp 640w, assets/img/panvino/panvino-vinho.webp 1200w" sizes="(max-width: 760px) 86vw, 25vw" alt="Taça de vinho tinto sendo servida no bar do Panvino" width="1200" height="800" loading="lazy" decoding="async">
@@ -598,6 +590,11 @@
                 <div class="field field--full">
                   <label for="titular-name">Nome completo do titular (dono/sócio)</label>
                   <input type="text" id="titular-name" name="titularName" autocomplete="name" autocapitalize="words" placeholder="Ex.: Carlos Eduardo de Oliveira" required>
+                  <p class="field__err" aria-live="polite"></p>
+                </div>
+                <div class="field">
+                  <label for="titular-badge">Nome no crachá</label>
+                  <input type="text" id="titular-badge" name="titularBadge" autocapitalize="words" maxlength="28" placeholder="Ex.: Carlos Oliveira" required>
                   <p class="field__err" aria-live="polite"></p>
                 </div>
                 <div class="field">
@@ -721,6 +718,6 @@
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" defer></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js" defer></script>
-  <script src="js/app.js?v=20261019b" defer></script>
+  <script src="js/app.js?v=20261020a" defer></script>
 </body>
 </html>
