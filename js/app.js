@@ -275,7 +275,7 @@ function validate() {
 
   const terms = $("#terms-agree");
   const termsErr = $("#terms-err");
-  if (!terms.checked) { termsErr.textContent = "Confirme que está ciente da chegada e do traje."; first = first || terms; }
+  if (!terms.checked) { termsErr.textContent = "Confirme que está ciente da chegada e do dress code."; first = first || terms; }
   else termsErr.textContent = "";
 
   if (first) {
@@ -305,7 +305,7 @@ async function sendEmail(p) {
     "Camisa do titular": p.titularShirt,
     "Total de pessoas": `${p.totalAttendees} (titular + ${p.leadersCount} líder${p.leadersCount === 1 ? "" : "es"})`,
     ...leaderFields,
-    "Ciente de chegada 10/12 e traje": "Sim",
+    "Ciente de chegada 10/12 e dress code": "Sim",
     "Data da inscrição": p.timestampFormatted,
     "ID da inscrição": p.submissionId
   };
@@ -459,7 +459,7 @@ function openModal(p) {
   $("#modal-whats").href = `https://wa.me/${EVENT_CONFIG.conciergePhone}?text=${msg}`;
 
   const details = encodeURIComponent(
-    `Sinapse Experience 2026\n- 08h–08h45: Credenciamento e café\n- 09h–18h: Imersão executiva (${EVENT_CONFIG.venueName})\n- 20h–23h: Noite de Celebração${EVENT_CONFIG.dinner.name ? " (" + EVENT_CONFIG.dinner.name + ")" : ""} · traje passeio completo\n\nInscrição: ${p.company} — ${p.titularName} + ${p.leadersCount} líder(es).`
+    `Sinapse Experience 2026\n- 08h–08h45: Credenciamento e café\n- 09h–18h: Imersão executiva (${EVENT_CONFIG.venueName})\n- 20h–23h: Noite de Celebração${EVENT_CONFIG.dinner.name ? " (" + EVENT_CONFIG.dinner.name + ")" : ""} · dress code: social sem gravata\n\nInscrição: ${p.company} — ${p.titularName} + ${p.leadersCount} líder(es).`
   );
   $("#modal-gcal").href = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent("Sinapse Experience 2026")}&dates=20261211T110000Z/20261212T020000Z&details=${details}&location=${encodeURIComponent(EVENT_CONFIG.venueAddress)}`;
   $("#modal-ics").onclick = () => downloadIcs(p);
@@ -486,7 +486,7 @@ function downloadIcs(p) {
     "DTSTAMP:" + new Date().toISOString().replace(/[-:]/g, "").split(".")[0] + "Z",
     "DTSTART:20261211T110000Z", "DTEND:20261212T020000Z",
     "SUMMARY:Sinapse Experience 2026",
-    `DESCRIPTION:08h–08h45 Credenciamento e café\\n09h–18h Imersão executiva\\n20h–23h Noite de Celebração (traje passeio completo)\\n\\nInscrição: ${p.company} — ${p.titularName}`,
+    `DESCRIPTION:08h–08h45 Credenciamento e café\\n09h–18h Imersão executiva\\n20h–23h Noite de Celebração (dress code: social sem gravata)\\n\\nInscrição: ${p.company} — ${p.titularName}`,
     `LOCATION:${EVENT_CONFIG.venueAddress.replace(/,/g, "\\,")}`,
     "STATUS:CONFIRMED", "END:VEVENT", "END:VCALENDAR"
   ].join("\r\n");
