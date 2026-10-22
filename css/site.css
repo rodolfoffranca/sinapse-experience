@@ -360,7 +360,7 @@ html:not(.js-motion) .dn__cap { background: var(--night); }
 .person { display: grid; gap: 22px; align-content: start; }
 .person__photo { position: relative; border-radius: var(--r-xl); overflow: hidden; aspect-ratio: 1 / 1.08; background: var(--bg-2); isolation: isolate; }
 .person__photo img { width: 100%; height: 100%; object-fit: cover; transition: transform 1000ms var(--ease-out); }
-.person__photo::after { content: ""; position: absolute; inset: 0; background: linear-gradient(0deg, rgba(8,13,38,.82) 0%, rgba(8,13,38,0) 42%); z-index: 1; }
+.person__photo::after { content: ""; position: absolute; inset: 0; background: linear-gradient(0deg, rgba(8,13,38,.82) 0%, rgba(8,13,38,0) 42%), linear-gradient(180deg, rgba(8,13,38,.32) 0%, rgba(8,13,38,0) 20%); z-index: 1; }
 @media (hover: hover) { .person:hover .person__photo img { transform: scale(1.035); } }
 .person__tag { position: absolute; top: 16px; left: 16px; z-index: 2; }
 .person__name { position: absolute; left: 24px; right: 24px; bottom: 22px; z-index: 2; color: #fff; display: grid; gap: 4px; }
